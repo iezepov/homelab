@@ -2,7 +2,6 @@ include:
   - media-compose.yml
   - immich/docker-compose.yml
   - paperless-ngx/docker-compose.yml
-  # - tandoor/docker-compose.yml
 
 networks:
   app:

@@ -45,16 +45,6 @@ services:
       - TZ=${TZ?err}
     network_mode: host
 
-  yt-dl:
-    image: nbr23/youtube-dl-server:latest
-    restart: unless-stopped
-    container_name: yt-dl
-    volumes:
-      - ./yt-dl:/youtube-dl
-    networks:
-      - app
-
-
   tautulli:
     image: ghcr.io/tautulli/tautulli
     container_name: tautulli

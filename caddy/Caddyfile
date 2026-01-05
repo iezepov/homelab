@@ -48,10 +48,6 @@ tautulli.lab.baddog.ch {
 	import auth
 	reverse_proxy tautulli:8181
 }
-yt-dl.lab.baddog.ch {
-	import auth
-	reverse_proxy yt-dl:8080
-}
 radarr.lab.baddog.ch {
 	import auth
 	reverse_proxy radarr:7878
