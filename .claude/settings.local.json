@@ -20,7 +20,9 @@
       "Bash(lspci:*)",
       "Bash(lsmod:*)",
       "Bash(docker compose:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(docker run:*)",
+      "Bash(docker exec:*)"
     ]
   }
 }

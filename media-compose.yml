@@ -21,6 +21,8 @@ services:
     volumes:
       - ./jellyfin:/config
       - nas-media:/data:ro
+    devices:
+      - /dev/dri:/dev/dri
     ports:
       - 8096:8096
       - 8920:8920 #optional
