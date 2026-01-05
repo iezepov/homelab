@@ -1,4 +1,4 @@
-# NFS volumes for media data from Synology NAS
+# NFS volume for media data from Synology NAS
 volumes:
   nas-media:
     driver: local
@@ -6,12 +6,6 @@ volumes:
       type: nfs
       o: addr=${NAS_IP:-192.168.1.117},nfsvers=3,rw,hard,intr
       device: ":/volume2/Data"
-  nas-audiobooks:
-    driver: local
-    driver_opts:
-      type: nfs
-      o: addr=${NAS_IP:-192.168.1.117},nfsvers=3,ro,hard,intr
-      device: ":/volume2/Data/Audiobooks"
 
 services:
   jellyfin:
@@ -73,7 +67,7 @@ services:
     volumes:
       - ./audiobookshelf/config:/config
       - ./audiobookshelf/metadata:/metadata
-      - nas-audiobooks:/audiobooks:ro
+      - nas-media:/data:ro
     environment:
       - PUID=${PUID?err}
       - PGID=${PGID?err}
