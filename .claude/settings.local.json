@@ -19,7 +19,8 @@
       "Bash(docker inspect:*)",
       "Bash(lspci:*)",
       "Bash(lsmod:*)",
-      "Bash(docker compose:*)"
+      "Bash(docker compose:*)",
+      "Bash(git push:*)"
     ]
   }
 }

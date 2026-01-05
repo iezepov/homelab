@@ -90,6 +90,15 @@ services:
       retries: 3
       start_period: 20s
 
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    restart: unless-stopped
+    volumes:
+      - ./uptime-kuma:/app/data
+    networks:
+      - app
+
 volumes:
   caddy-data:
   caddy-config:

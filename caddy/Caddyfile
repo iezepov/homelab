@@ -72,6 +72,10 @@ speedtest.lab.baddog.ch {
 	import auth
 	reverse_proxy speedtest-tracker:80
 }
+uptime.lab.baddog.ch {
+	import auth
+	reverse_proxy uptime-kuma:3001
+}
 # Those use tailscale proxy, so not accessible directly
 sabnzbd.lab.baddog.ch {
 	import auth
