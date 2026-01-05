@@ -1,0 +1,13 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/latest/configs/bookmarks
+
+- Developer:
+    - My Github:
+        - abbr: GH
+          href: https://github.com/iezepov
+
+- Entertainment:
+    - YouTube:
+        - abbr: YT
+          href: https://youtube.com/

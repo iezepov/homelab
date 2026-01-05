@@ -1,0 +1,113 @@
+include:
+  - media-compose.yml
+  - immich/docker-compose.yml
+  - paperless-ngx/docker-compose.yml
+  # - tandoor/docker-compose.yml
+
+networks:
+  app:
+    driver: bridge
+
+services:
+  caddy:
+    build: ./caddy
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      - app
+  
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    restart: unless-stopped
+    volumes:
+      - ./homepage:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 3000:3000
+    environment:
+      - TZ=${TZ?err}
+      - HOMEPAGE_ALLOWED_HOSTS=lab.baddog.ch,ubuntu.bonobo-torino.ts.net:3000
+    networks:
+      - app
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    restart: unless-stopped
+    environment:
+      - WATCHTOWER_CLEANUP=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  portainer:
+    image: portainer/portainer-ce
+    container_name: portainer
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./portainer:/data
+    networks:
+      - app
+
+  speedtest-tracker:
+    image: lscr.io/linuxserver/speedtest-tracker:latest
+    container_name: speedtest-tracker
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID?err}
+      - PGID=${PGID?err}
+      - DISPLAY_TIMEZONE=${TZ?err}
+      - APP_KEY=base64:TJcMxaFHNF3SQDcGeFsk6NF5GOCAGX71TU+2RyYmzFM=
+      - SPEEDTEST_SCHEDULE=15 */6 * * *  # Every 6th hour, on th 15-th minute
+    volumes:
+      - ./speedtest-tracker:/config
+    networks:
+      - app
+  
+  actual:
+    image: docker.io/actualbudget/actual-server:latest
+    container_name: actual
+    restart: unless-stopped
+      #environment:
+      #- ACTUAL_LOGIN_METHOD=header
+    networks:
+      - app
+    volumes:
+      - ./actual:/data
+    healthcheck:
+      # Enable health check for the instance
+      test: ['CMD-SHELL', 'node src/scripts/health-check.js']
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  nextcloud:
+    image: nextcloud/all-in-one:latest
+    container_name: nextcloud-aio-mastercontainer # This line is not allowed to be changed as otherwise AIO will not work correctly
+    init: true
+    restart: unless-stopped
+    volumes:
+      - nextcloud_aio_mastercontainer:/mnt/docker-aio-config # This line is not allowed to be changed as otherwise the built-in backup solution will not work
+      # - 80:80 # Can be removed when running behind a web server or reverse proxy (like Apache, Nginx, Caddy, Cloudflare Tunnel and else). See https://github.com/nextcloud/all-in-one/blob/main/reverse-proxy.md
+      # - 8443:8443 # Can be removed when running behind a web server or reverse proxy (like Apache, Nginx, Caddy, Cloudflare Tunnel and else). See https://github.com/nextcloud/all-in-one/blob/main/reverse-proxy.md
+    environment:
+      - APACHE_PORT=11000
+      - APACHE_IP_BINDING=0.0.0.0
+      # - APACHE_ADDITIONAL_NETWORK=""
+      - SKIP_DOMAIN_VALIDATION=true
+
+volumes:
+  caddy-data:
+  caddy-config:
+  nextcloud_aio_mastercontainer:
+    name: nextcloud_aio_mastercontainer 

@@ -1,0 +1,89 @@
+{
+	email admin@baddog.ch
+	cert_issuer acme {
+		dns cloudflare qz3slqAL9sek4cxxnb6he2gR7ViNkjT3iBLxRSwo
+		resolvers 1.1.1.1 8.8.8.8
+	}
+	auto_https prefer_wildcard
+	admin 0.0.0.0:2019
+}
+
+
+(auth) {
+    forward_auth * http://lighthouse.bonobo-torino.ts.net:31306 {
+        uri /api/authz/forward-auth
+        copy_headers Remote-User Remote-Groups Remote-Email Remote-Name
+    }
+}
+
+lab.baddog.ch {
+	import auth
+	reverse_proxy homepage:3000
+}
+
+nas.lab.baddog.ch {
+	import auth
+	reverse_proxy http://dionysos.bonobo-torino.ts.net:5000
+}
+actual.lab.baddog.ch {
+	#import auth
+	reverse_proxy actual:5006
+	# TODO: header auth
+}
+jellyfin.lab.baddog.ch {
+	reverse_proxy jellyfin:8096
+}
+plex.lab.baddog.ch {
+	reverse_proxy 172.17.0.1:32400
+}
+paperless.lab.baddog.ch {
+	import auth
+	reverse_proxy paperless:8000
+}
+portainer.lab.baddog.ch {
+	import auth
+	reverse_proxy portainer:9000
+}
+tautulli.lab.baddog.ch {
+	import auth
+	reverse_proxy tautulli:8181
+}
+yt-dl.lab.baddog.ch {
+	import auth
+	reverse_proxy yt-dl:8080
+}
+radarr.lab.baddog.ch {
+	import auth
+	reverse_proxy radarr:7878
+}
+sonarr.lab.baddog.ch {
+	import auth
+	reverse_proxy sonarr:8989
+}
+lidarr.lab.baddog.ch {
+	import auth
+	reverse_proxy lidarr:8686
+}
+prowlarr.lab.baddog.ch {
+	import auth
+	reverse_proxy prowlarr:9696
+}
+bazarr.lab.baddog.ch {
+	import auth
+	reverse_proxy bazarr:6767
+}
+speedtest.lab.baddog.ch {
+	import auth
+	reverse_proxy speedtest-tracker:80
+}
+# Those use tailscale proxy, so not accessible directly
+sabnzbd.lab.baddog.ch {
+	import auth
+	reverse_proxy sabnzbd:8082
+}
+qbittorrent.lab.baddog.ch {
+	import auth
+	#reverse_proxy docker-gateway:8081
+	reverse_proxy qbittorrent:8081
+}
+

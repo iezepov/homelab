@@ -1,0 +1,167 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/latest/configs/services
+
+
+# icons found here https://github.com/homarr-labs/dashboard-icons/blob/main/ICONS.md
+- Home:
+      - Home Assistant:
+            icon: home-assistant.svg
+            href: http://homeassistant.local:8123
+            description: Home sweet home
+      - Proxmox:
+            icon: proxmox.svg 
+            href: https://beelab.bonobo-torino.ts.net
+            description: Proxmox VE
+      - Portainer:
+            icon: portainer.svg
+            href: https://portainer.lab.baddog.ch
+            description: Manage docker containers
+            widget:
+                  type: portainer
+                  url: http://portainer:9000
+                  env: 2
+                  key: ptr_w7Eu7lK9k9MqXxyBE8VOzJgoff4VNF69qxz5qOY8pTM=
+            server: my-docker
+            container: portainer
+
+
+- Network:
+      - caddy:
+            container: caddy
+            description: Reverse Proxy
+            widget:
+              type: caddy
+              url: http://caddy:2019
+      - speedtest:
+            container: speedtest-tracker
+            icon: speedtest-tracker.png
+            href: https://speedtest.lab.baddog.ch
+            widget:
+                  type: speedtest
+                  url: http://speedtest-tracker:80
+      - tailscale:
+            icon: tailscale.svg
+            href: https://login.tailscale.com/admin/machines
+            description: My tailnet
+            
+- DNS:
+      - NextDNS (Personal):
+            icon: nextdns.svg
+            href: https://my.nextdns.io/c216d3
+            description: Adblocking DNS
+            widget:
+                type: nextdns
+                profile: c216d3
+                key: b8f854f0cc9c8ffc4272ac762e43fc7b33d0ea0c
+
+      - NextDNS (Router):
+            icon: nextdns.svg
+            href: https://my.nextdns.io/7114ca
+            description: Adblocking DNS
+            widget:
+                type: nextdns
+                profile: 7114ca
+                key: b8f854f0cc9c8ffc4272ac762e43fc7b33d0ea0c
+
+- Media:
+      - Audiobookshelf:
+            server: my-docker
+            container: audiobookshelf
+            icon: audiobookshelf.svg
+            href: https://audiobookshelf.baddog.ch
+            description: Listen to something!
+            widget:
+                  type: audiobookshelf
+                  url: https://audiobookshelf.baddog.ch
+                  key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhMzk2YjUyNC1iMTMxLTRkYWEtOTU1My02ZWY1MzI2ZGJhZWIiLCJ1c2VybmFtZSI6ImJhZGRvZyIsImlhdCI6MTczNjM2ODAxNH0.Jpm1FJsX9785SujUMvVYtzTz52qfxW3MNAmdNJ86Tsg
+      - Plex:
+            server: my-docker
+            container: plex
+            icon: plex.svg
+            href: https://plex.baddog.ch
+            description: Plex media server
+            widget:
+                  type: tautulli
+                  url: http://tautulli:8181
+                  key: 252f5dc375b142a2b5648ab28dc2dca3
+                  enableUser: true # optional, defaults to false
+                  showEpisodeNumber: true # optional, defaults to false
+                  expandOneStreamToTwoRows: false # optional, defaults to true
+
+
+      - qBittorrent:
+            server: my-docker
+            container: qbittorrent
+            icon: qbittorrent.svg
+            href: https://qbittorrent.lab.baddog.ch
+            description: Torrents downloader
+            widget:
+                  type: qbittorrent
+                  url: http://tailscale-gateway:8081
+                  username: baddog
+                  password: 7rnB$eSms0yG*!
+                  enableLeechProgress: true # optional, defaults to false
+
+      - SABnzbd:
+            server: my-docker
+            container: sabnzbd
+            icon: sabnzbd.svg
+            href: https://sabnzbd.lab.baddog.ch
+            description: Usenet downloader
+            widget:
+                  type: sabnzbd
+                  url: http://tailscale-gateway:8082
+                  key: 70b9f0b2604746418a08bcdb234b3fb0
+
+- Arr:      
+      - Prowlar:
+            server: my-docker
+            container: prowlarr
+            icon: prowlarr.svg
+            href: https://prowlarr.lab.baddog.ch
+            description: Indexers
+            widget:
+                  type: prowlarr
+                  url: http://prowlarr:9696
+                  key: 2a314edf043a459884f96a2700331992
+      - Radarr:
+            server: my-docker
+            container: radarr
+            icon: radarr.svg
+            href: https://radarr.lab.baddog.ch
+            description: Movies
+            widget:
+                  type: radarr
+                  url: http://radarr:7878
+                  key: 1d4380db13204e0ba93cbb6695c2a775
+      - Soanrr:
+            server: my-docker
+            container: sonarr
+            icon: sonarr.svg
+            href: https://sonarr.lab.baddog.ch
+            description: TV Shows
+            widget:
+                  type: sonarr
+                  url: http://sonarr:8989
+                  key: 932c5fea96cd4f9ebde682c4c5a774f9
+      - Lidarr:
+            server: my-docker
+            container: lidarr
+            icon: lidarr.svg
+            href: https://lidarr.lab.baddog.ch
+            description: Music
+            widget:
+                  type: lidarr
+                  url: http://lidarr:8686
+                  key: 2f568fa9e8b34f94a5d08ba315af91b1
+      - Bazarr:
+            server: my-docker
+            container: bazarr
+            icon: bazarr.svg
+            href: https://bazarr.lab.baddog.ch
+            description: Subtitles manager
+            widget:
+                  type: bazarr
+                  url: http://bazarr:6767
+                  key: 0aaf8ddd3a732f56952a7e7ad1cbaebb

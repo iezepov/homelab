@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker ps:*)",
+      "Bash(docker logs:*)",
+      "Bash(mount:*)",
+      "Bash(lscpu:*)",
+      "Bash(ls:*)",
+      "Bash(du:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git rm:*)"
+    ]
+  }
+}

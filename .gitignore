@@ -1,0 +1,37 @@
+# Ignore everything by default
+*
+
+# Allow these specific files
+!.gitignore
+!.env.example
+!CLAUDE.md
+
+# Main compose files
+!compose.yml
+!media-compose.yml
+
+# Caddy reverse proxy config
+!caddy/
+!caddy/Caddyfile
+!caddy/Dockerfile
+
+# Homepage dashboard config
+!homepage/
+!homepage/*.yaml
+
+# Immich compose (env is secret, use .env.example)
+!immich/
+!immich/docker-compose.yml
+!immich/.env.example
+
+# Paperless compose
+!paperless-ngx/
+!paperless-ngx/docker-compose.yml
+
+# Tandoor (recipes) compose
+!tandoor/
+!tandoor/docker-compose.yml
+
+# Claude Code settings
+!.claude/
+!.claude/**
