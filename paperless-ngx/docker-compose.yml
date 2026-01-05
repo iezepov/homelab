@@ -56,17 +56,24 @@ services:
       - app
       - internal
     volumes:
-      - /mnt/paperless/data:/usr/src/paperless/data
-      - /mnt/paperless/media:/usr/src/paperless/media
+      - nas-paperless:/mnt/nas
       - ./export:/usr/src/paperless/export
-      - /mnt/paperless/consume:/usr/src/paperless/consume
     env_file: docker-compose.env
     environment:
       PAPERLESS_REDIS: redis://broker:6379
       PAPERLESS_DBHOST: db
+      PAPERLESS_DATA_DIR: /mnt/nas/data
+      PAPERLESS_MEDIA_ROOT: /mnt/nas/media
+      PAPERLESS_CONSUMPTION_DIR: /mnt/nas/consume
 volumes:
   pgdata:
   redisdata:
+  nas-paperless:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=${NAS_IP:-192.168.1.117},nfsvers=3,rw,hard,intr
+      device: ":/volume2/Paperless"
 
 networks:
   internal:

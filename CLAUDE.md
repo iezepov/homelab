@@ -38,10 +38,12 @@ docker compose pull && docker compose up -d
 - `paperless_internal_network` - Isolated internal network for Paperless DB/broker
 
 ### Storage
-NFS mounts from Synology NAS at `192.168.1.117`:
-- `/mnt/data` - Media library (`${DATA_DIR}` in compose)
-- `/mnt/immich` - Immich photo uploads
-- `/mnt/paperless` - Paperless documents
+NFS volumes from Synology NAS (IP configured via `NAS_IP` env var, default `192.168.1.117`):
+- `nas-data` - Media library (movies, TV, music, torrents, usenet)
+- `nas-immich` - Immich photo uploads
+- `nas-paperless` - Paperless documents
+
+NFS mounts are defined as Docker volumes in compose files (not system fstab).
 
 ### Reverse Proxy
 Caddy with custom build (`caddy/Dockerfile`) including:
@@ -53,10 +55,10 @@ All services exposed as `<service>.lab.baddog.ch` subdomains.
 ### Environment Variables
 Root `.env` file provides:
 - `TZ`, `PUID`, `PGID` - Standard LinuxServer.io vars
-- `DATA_DIR` - Points to `/mnt/data`
+- `NAS_IP` - Synology NAS IP for NFS volumes (default: 192.168.1.117)
 - `TS_AUTHKEY` - Tailscale auth key
 
-Service-specific `.env` files exist in: `immich/`, `paperless-ngx/`, `firefly/`, `tandoor/`
+Service-specific `.env` files exist in: `immich/`, `paperless-ngx/`, `tandoor/`
 
 ## Key Integrations
 
