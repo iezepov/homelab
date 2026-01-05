@@ -9,7 +9,14 @@
       "Bash(du:*)",
       "Bash(git init:*)",
       "Bash(git add:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(git branch:*)",
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(docker volume:*)",
+      "Bash(docker stop:*)",
+      "Bash(docker rm:*)",
+      "Bash(docker inspect:*)"
     ]
   }
 }
