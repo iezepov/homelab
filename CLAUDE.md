@@ -39,7 +39,7 @@ docker compose pull && docker compose up -d
 
 ### Storage
 NFS volumes from Synology NAS (IP configured via `NAS_IP` env var, default `192.168.1.117`):
-- `nas-data` - Media library (movies, TV, music, torrents, usenet)
+- `nas-media` - Media library (movies, TV, music, torrents, usenet)
 - `nas-immich` - Immich photo uploads
 - `nas-paperless` - Paperless documents
 
