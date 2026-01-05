@@ -18,7 +18,8 @@
       "Bash(docker rm:*)",
       "Bash(docker inspect:*)",
       "Bash(lspci:*)",
-      "Bash(lsmod:*)"
+      "Bash(lsmod:*)",
+      "Bash(docker compose:*)"
     ]
   }
 }
