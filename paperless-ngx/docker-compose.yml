@@ -60,6 +60,9 @@ services:
       - ./export:/usr/src/paperless/export
     env_file: docker-compose.env
     environment:
+      # Match Synology NAS user (baddog:users) for NFS write permissions
+      USERMAP_UID: 1026
+      USERMAP_GID: 100
       PAPERLESS_REDIS: redis://broker:6379
       PAPERLESS_DBHOST: db
       PAPERLESS_DATA_DIR: /mnt/nas/data
