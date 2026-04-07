@@ -59,7 +59,7 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./portainer:/data
+      - ../portainer:/data
     networks:
       - app
 
@@ -74,7 +74,7 @@ services:
       - APP_KEY=base64:TJcMxaFHNF3SQDcGeFsk6NF5GOCAGX71TU+2RyYmzFM=
       - SPEEDTEST_SCHEDULE=15 */6 * * *  # Every 6th hour, on th 15-th minute
     volumes:
-      - ./speedtest-tracker:/config
+      - ../speedtest-tracker:/config
     networks:
       - app
     healthcheck:
@@ -93,7 +93,7 @@ services:
     networks:
       - app
     volumes:
-      - ./actual:/data
+      - ../actual:/data
     healthcheck:
       # Enable health check for the instance
       test: ['CMD-SHELL', 'node src/scripts/health-check.js']
@@ -107,7 +107,7 @@ services:
     container_name: uptime-kuma
     restart: unless-stopped
     volumes:
-      - ./uptime-kuma:/app/data
+      - ../uptime-kuma:/app/data
     networks:
       - app
 
