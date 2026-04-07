@@ -39,7 +39,7 @@ services:
       - app
 
   watchtower:
-    image: containrrr/watchtower
+    image: ghcr.io/nicholas-fedor/watchtower:latest
     container_name: watchtower
     restart: unless-stopped
     environment:
