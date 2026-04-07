@@ -30,6 +30,12 @@ services:
       - 1900:1900/udp #optional
     networks:
       - app
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8096/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   plex:
     image: linuxserver/plex:latest
@@ -46,6 +52,12 @@ services:
       - PGID=${PGID?err}
       - TZ=${TZ?err}
     network_mode: host
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:32400/identity || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   tautulli:
     image: ghcr.io/tautulli/tautulli
@@ -74,6 +86,12 @@ services:
       - PUID=${PUID?err}
       - PGID=${PGID?err}
       - TZ=${TZ?err}
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:80/healthcheck || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
 
   prowlarr:
     image: linuxserver/prowlarr:latest
@@ -87,6 +105,12 @@ services:
       - ./prowlarr:/config
     networks:
       - app
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9696/ping || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   # https://trash-guides.info/File-and-Folder-Structure/How-to-set-up/Docker/
   radarr:
@@ -102,6 +126,12 @@ services:
       - nas-media:/data
     networks:
       - app
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:7878/ping || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   sonarr:
     container_name: sonarr
@@ -116,6 +146,12 @@ services:
       - nas-media:/data
     networks:
       - app
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8989/ping || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   lidarr:
     container_name: lidarr
@@ -130,6 +166,12 @@ services:
       - nas-media:/data
     networks:
       - app
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8686/ping || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   bazarr:
     container_name: bazarr
@@ -144,6 +186,12 @@ services:
       - nas-media:/data:ro
     networks:
       - app
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:6767/ping || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   tailscale-gateway:
     image: tailscale/tailscale:latest
@@ -184,6 +232,12 @@ services:
       resources:
         limits:
           memory: 1000M # limit RAM usage for caching
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8081 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   sabnzbd:
     container_name: sabnzbd
@@ -201,3 +255,9 @@ services:
     volumes:
       - ./sabnzbd:/config
       - nas-media:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/api?mode=version || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
