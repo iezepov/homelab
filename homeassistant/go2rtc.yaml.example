@@ -1,0 +1,3 @@
+streams:
+  kids_bedroom_tapo: "rtsp://USERNAME:PASSWORD@192.168.1.151:554/stream1"
+  playroom_tapo: "rtsp://USERNAME:PASSWORD@192.168.1.153:554/stream1"

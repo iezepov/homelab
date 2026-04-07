@@ -4,18 +4,60 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a homelab Docker Compose stack running on an Ubuntu VM (Proxmox) managing media, productivity, and home services. All services are orchestrated through a hierarchical compose structure with Caddy as the reverse proxy.
+This is a multi-node homelab infrastructure repository managing two Proxmox VMs connected via Tailscale:
 
-## Common Commands
+| Node | Tailscale Name | Purpose |
+|------|----------------|---------|
+| **ubuntu** | `ubuntu.bonobo-torino.ts.net` | Docker Compose stack (media, productivity, services) |
+| **homeassistant** | `homeassistant.bonobo-torino.ts.net` | Home Assistant OS (smart home) |
+
+## Repository Structure
+
+```
+/
+├── ubuntu/                 # Docker stack on ubuntu node
+│   ├── compose.yml         # Main entrypoint
+│   ├── media-compose.yml   # Media services
+│   ├── caddy/              # Reverse proxy
+│   ├── immich/             # Photo management
+│   ├── paperless-ngx/      # Document management
+│   └── homepage/           # Dashboard
+│
+├── homeassistant/          # Home Assistant config
+│   ├── configuration.yaml  # Main HA config
+│   ├── automations.yaml    # Automations
+│   ├── scenes.yaml         # Scenes
+│   ├── blueprints/         # Automation blueprints
+│   └── www/                # Frontend cards (HACS)
+│
+└── CLAUDE.md
+```
+
+## Connecting to Nodes
 
 ```bash
+# Ubuntu node (local or via Tailscale)
+ssh ubuntu
+ssh ubuntu.bonobo-torino.ts.net
+
+# Home Assistant (SSH add-on on port 22222)
+ssh -p 22222 root@homeassistant
+```
+
+## Ubuntu Node - Docker Stack
+
+### Common Commands
+
+```bash
+cd ~/docker/ubuntu
+
 # Start all services
 docker compose up -d
 
 # Restart a specific service
 docker compose restart <service-name>
 
-# View logs for a service
+# View logs
 docker logs <container-name> --tail 100 -f
 
 # Rebuild caddy after Caddyfile changes
@@ -25,45 +67,89 @@ docker compose build caddy && docker compose up -d caddy
 docker compose pull && docker compose up -d
 ```
 
-## Architecture
+### Architecture
 
-### Compose Structure
+**Compose Structure:**
 - `compose.yml` - Main entrypoint, includes other compose files via `include:`
   - `media-compose.yml` - Media stack (Jellyfin, Plex, *arr apps, downloaders)
   - `immich/docker-compose.yml` - Photo management
   - `paperless-ngx/docker-compose.yml` - Document management
 
-### Networks
+**Networks:**
 - `app` - Main bridge network for inter-service communication
 - `paperless_internal_network` - Isolated internal network for Paperless DB/broker
 
-### Storage
+**Storage:**
 NFS volumes from Synology NAS (IP configured via `NAS_IP` env var, default `192.168.1.117`):
 - `nas-media` - Media library (movies, TV, music, torrents, usenet)
 - `nas-immich` - Immich photo uploads
 - `nas-paperless` - Paperless documents
 
-NFS mounts are defined as Docker volumes in compose files (not system fstab).
-
-### Reverse Proxy
-Caddy with custom build (`caddy/Dockerfile`) including:
+**Reverse Proxy:**
+Caddy with custom build including:
 - `caddy-dns/cloudflare` - DNS challenge for wildcard certs
 - Forward auth via Authelia at `lighthouse.bonobo-torino.ts.net:31306`
+- All services exposed as `<service>.lab.baddog.ch` subdomains
 
-All services exposed as `<service>.lab.baddog.ch` subdomains.
+**Environment Variables:**
+- Root `.env` provides: `TZ`, `PUID`, `PGID`, `NAS_IP`, `TS_AUTHKEY`
+- Service-specific `.env` files in: `immich/`, `paperless-ngx/`
 
-### Environment Variables
-Root `.env` file provides:
-- `TZ`, `PUID`, `PGID` - Standard LinuxServer.io vars
-- `NAS_IP` - Synology NAS IP for NFS volumes (default: 192.168.1.117)
-- `TS_AUTHKEY` - Tailscale auth key
+### Key Integrations
 
-Service-specific `.env` files exist in: `immich/`, `paperless-ngx/`, `tandoor/`
+- **Media Pipeline:** Prowlarr → Radarr/Sonarr/Lidarr → qBittorrent/SABnzbd → Jellyfin/Plex
+- **VPN Routing:** Tailscale gateway container configured with exit node for download clients
+- **Monitoring:** Watchtower for auto-updates, Tautulli for Plex stats, Speedtest-tracker for bandwidth
 
-## Key Integrations
+## Home Assistant Node
 
-**Media Pipeline:** Prowlarr → Radarr/Sonarr/Lidarr → qBittorrent/SABnzbd → Jellyfin/Plex
+### Syncing Config
 
-**VPN Routing:** Tailscale gateway container configured with exit node for download clients
+```bash
+# Pull config from HA to repo (from ubuntu node)
+rsync -av --progress -e "ssh -p 22222" \
+  --exclude='.storage' --exclude='*.db*' --exclude='*.log*' \
+  --exclude='deps/' --exclude='tts/' --exclude='.cloud/' \
+  --exclude='custom_components/' --exclude='.HA_VERSION' \
+  root@homeassistant:/homeassistant/ ./homeassistant/
 
-**Monitoring:** Watchtower for auto-updates, Tautulli for Plex stats, Speedtest-tracker for bandwidth
+# Push config to HA
+rsync -av --progress -e "ssh -p 22222" \
+  --exclude='secrets.yaml' --exclude='go2rtc.yaml' \
+  ./homeassistant/ root@homeassistant:/homeassistant/
+```
+
+### Key Components
+
+**Integrations:**
+- Philips Hue (lights, rooms)
+- Zigbee (ZHA) - IKEA remotes (STYRBAR, Somrig), sensors
+- Marantz CINEMA 70s AVR
+- XGIMI projector
+- Tapo cameras (via go2rtc)
+- Robot vacuum (Saros 10R)
+
+**Automations:**
+- Bedtime routines (lights dim, media off, sleep music)
+- Dimmer switch controls (Hue, IKEA)
+- Media player auto-control (projector turns off lights)
+- Plant humidity alerts
+- Wake-up light sequences
+
+**Custom Components (via HACS):**
+- dlight
+- webrtc
+
+### Secrets Management
+
+- `secrets.yaml` - Contains actual secrets (gitignored)
+- `secrets.yaml.example` - Template with placeholders
+- `go2rtc.yaml` - Camera streams with credentials (gitignored)
+- `go2rtc.yaml.example` - Template without credentials
+
+## Deployment Workflow
+
+1. Make changes in this repo
+2. Commit and push
+3. For ubuntu: `cd ~/docker/ubuntu && git pull && docker compose up -d`
+4. For HA: Use rsync to push config, then reload via HA UI or `ha core restart`

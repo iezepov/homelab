@@ -1,0 +1,165 @@
+- id: '1743229164661'
+  name: Morning routine
+  entities:
+    light.living_room:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: xy
+      brightness: 255
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      - 35.825
+      - 80.784
+      rgb_color:
+      - 255
+      - 172
+      - 49
+      xy_color:
+      - 0.542
+      - 0.415
+      is_hue_group: true
+      hue_scenes:
+      - Forest adventure 2
+      - Vapor Wave
+      - Unwind
+      - Honolulu 2
+      - Honolulu
+      - Arctic aurora
+      - Disturbia
+      - Soho
+      - Warm embrace
+      - Crocus
+      - Singapore
+      - Lily
+      - Nightlight
+      - Scarlet dream
+      - Glitz and glam
+      - Tyrell
+      - Tokio
+      - Malibu pink
+      - Forest adventure
+      hue_type: room
+      lights:
+      - Lowboard
+      - Signe gradient floor 1
+      entity_id:
+      - light.signe_gradient_floor_1
+      - light.lowboard
+      dynamics: false
+      icon: mdi:lightbulb-group
+      friendly_name: Living room
+      supported_features: 40
+      state: 'on'
+    media_player.marantz_cinema_70s:
+      source_list:
+      - Apple TV
+      - Bluetooth
+      - Game
+      - HEOS Music
+      - TV Audio
+      sound_mode_list:
+      - MUSIC
+      - MOVIE
+      - GAME
+      - AUTO
+      - STANDARD
+      - VIRTUAL
+      - MATRIX
+      - ROCK ARENA
+      - JAZZ CLUB
+      - VIDEO GAME
+      - MONO MOVIE
+      - DIRECT
+      - PURE DIRECT
+      - DOLBY DIGITAL
+      - DTS SURROUND
+      - AURO3D
+      - AURO2DSURR
+      - MCH STEREO
+      - STEREO
+      - ALL ZONE STEREO
+      device_class: receiver
+      friendly_name: Marantz CINEMA 70s
+      supported_features: 85949
+      volume_level: 0.115
+      is_volume_muted: false
+      media_content_type: music
+      source: HEOS Music
+      sound_mode: DTS SURROUND
+      sound_mode_raw: NEURAL:X
+      dynamic_eq: false
+      state: playing
+    light.dining:
+      supported_color_modes:
+      - brightness
+      color_mode: brightness
+      brightness: 128
+      is_hue_group: true
+      hue_scenes:
+      - Dimmed
+      - Relax
+      - Nightlight
+      - Bright
+      - Read
+      hue_type: room
+      lights:
+      - Hue white lamp 4
+      - Hue white lamp 2
+      - Hue white lamp 3
+      - Hue white lamp 1
+      - Hue white luster 1
+      entity_id:
+      - light.hue_white_lamp_3
+      - light.hue_white_luster_1
+      - light.hue_white_lamp_2
+      - light.hue_white_lamp_1
+      - light.hue_white_lamp_4
+      dynamics: false
+      icon: mdi:lightbulb-group
+      friendly_name: Dining
+      supported_features: 40
+      state: 'on'
+  icon: mdi:weather-sunset-up
+  metadata: {}
+- id: '1746638933881'
+  name: Sofia's bedtime
+  entities:
+    light.sofia_wardrobe_light:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - 'off'
+      - colorloop
+      supported_color_modes:
+      - color_temp
+      - xy
+      effect: 'off'
+      color_mode: xy
+      brightness: 43
+      color_temp_kelvin:
+      color_temp: 
+      hs_color:
+      - 9.231
+      - 66.275
+      rgb_color:
+      - 255
+      - 112
+      - 86
+      xy_color:
+      - 0.589
+      - 0.329
+      off_with_transition: false
+      off_brightness:
+      friendly_name: Sofia wardrobe light
+      supported_features: 44
+      state: 'on'
+  metadata: {}
+  icon: mdi:power-sleep

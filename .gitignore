@@ -1,37 +1,59 @@
 # Ignore everything by default
 *
 
-# Allow these specific files
+# Allow these specific files at root
 !.gitignore
 !.env.example
 !CLAUDE.md
 
-# Main compose files
-!compose.yml
-!media-compose.yml
-
-# Caddy reverse proxy config
-!caddy/
-!caddy/Caddyfile
-!caddy/Dockerfile
-
-# Homepage dashboard config
-!homepage/
-!homepage/*.yaml
-
-# Immich compose (env is secret, use .env.example)
-!immich/
-!immich/docker-compose.yml
-!immich/.env.example
-
-# Paperless compose
-!paperless-ngx/
-!paperless-ngx/docker-compose.yml
-
-# Tandoor (recipes) compose
-!tandoor/
-!tandoor/docker-compose.yml
-
 # Claude Code settings
 !.claude/
 !.claude/**
+
+# ========================================
+# Ubuntu node (Docker stack)
+# ========================================
+!ubuntu/
+!ubuntu/.env.example
+
+# Main compose files
+!ubuntu/compose.yml
+!ubuntu/media-compose.yml
+
+# Caddy reverse proxy config
+!ubuntu/caddy/
+!ubuntu/caddy/Caddyfile
+!ubuntu/caddy/Dockerfile
+
+# Homepage dashboard config
+!ubuntu/homepage/
+!ubuntu/homepage/*.yaml
+
+# Immich compose (env is secret, use .env.example)
+!ubuntu/immich/
+!ubuntu/immich/docker-compose.yml
+!ubuntu/immich/.env.example
+
+# Paperless compose
+!ubuntu/paperless-ngx/
+!ubuntu/paperless-ngx/docker-compose.yml
+
+# ========================================
+# Home Assistant node
+# ========================================
+!homeassistant/
+!homeassistant/**
+
+# Ignore HA secrets and runtime files
+homeassistant/secrets.yaml
+homeassistant/go2rtc.yaml
+homeassistant/.storage/
+homeassistant/home-assistant_v2.db*
+homeassistant/home-assistant.log*
+homeassistant/zigbee.db*
+homeassistant/deps/
+homeassistant/tts/
+homeassistant/.HA_VERSION
+homeassistant/.cloud/
+homeassistant/.ha_run.lock
+homeassistant/custom_components/

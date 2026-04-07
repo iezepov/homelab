@@ -1,0 +1,473 @@
+- id: '1743198726304'
+  alias: "Bedtime \U0001F634"
+  description: This is to help us going to bed
+  triggers:
+  - trigger: time
+    at: '21:45:00'
+  conditions: []
+  actions:
+  - action: media_player.turn_off
+    metadata: {}
+    data: {}
+    target:
+      device_id:
+      - bcbb89a1eedfb2b2691376fb02b53c7e
+      - 950d52bd198c8ed69c3b2cd9efdcbbd0
+      - a6a45e297f5f4219d7b1a8820cd20ff7
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: 15
+      color_temp_kelvin: 2000
+    target:
+      area_id:
+      - living_room
+      - dining
+  - action: light.turn_on
+    metadata: {}
+    data:
+      transition: 5
+      rgb_color:
+      - 225
+      - 55
+      - 55
+      brightness_pct: 20
+    target:
+      area_id: master_bedroom
+  - action: media_player.volume_set
+    metadata: {}
+    data:
+      volume_level: 0.2
+    target:
+      device_id: 7c793eeaf10e5385861af7c38daf2b60
+  - action: media_player.play_media
+    target:
+      entity_id: media_player.master_bedroom
+    data:
+      media_content_id: media-source://media_source/local/Dionysos/misc/sleep music/11.
+        Healing Yoga Meditation Music Consort - Wellness Yoga Pad.mp3
+      media_content_type: audio/mpeg
+    metadata:
+      title: 11. Healing Yoga Meditation Music Consort - Wellness Yoga Pad.mp3
+      thumbnail:
+      media_class: music
+      children_media_class:
+      navigateIds:
+      - {}
+      - media_content_type: app
+        media_content_id: media-source://media_source
+      - media_content_type: ''
+        media_content_id: media-source://media_source/local/Dionysos
+      - media_content_type: ''
+        media_content_id: media-source://media_source/local/Dionysos/misc
+      - media_content_type: ''
+        media_content_id: media-source://media_source/local/Dionysos/misc/sleep music
+  - delay:
+      hours: 0
+      minutes: 15
+      seconds: 0
+      milliseconds: 0
+  - action: button.press
+    metadata: {}
+    data: {}
+    target:
+      entity_id: button.saros_10r_night_cleaning
+    enabled: false
+  - action: light.turn_off
+    metadata: {}
+    data:
+      transition: 3
+    target:
+      area_id:
+      - dining
+      - living_room
+  mode: single
+- id: '1744047794668'
+  alias: Keep Media Players Off After Bedtime
+  description: Ensures media players stay off after the "Time to sleep" automation
+    runs.
+  triggers:
+  - device_id: a6a45e297f5f4219d7b1a8820cd20ff7
+    domain: media_player
+    entity_id: a1c326c863d5d0b5bef75e0c371a6000
+    type: turned_on
+    trigger: device
+  - type: turned_on
+    device_id: 950d52bd198c8ed69c3b2cd9efdcbbd0
+    entity_id: 3f3b015a6f2603470c88bb9229ca0622
+    domain: remote
+    trigger: device
+  - type: turned_on
+    device_id: bcbb89a1eedfb2b2691376fb02b53c7e
+    entity_id: eceeee5854eca27851be164a52280836
+    domain: remote
+    trigger: device
+  conditions:
+  - condition: time
+    after: '21:45:00'
+    before: 00:00:00
+  actions:
+  - target:
+      entity_id:
+      - media_player.magic_apple_tv
+      - media_player.xgimi_horizon_ultra
+      - media_player.marantz_cinema_70s
+    action: media_player.turn_off
+    data: {}
+  mode: parallel
+- id: '1745588128131'
+  alias: Turn off the lights for the projector
+  description: ''
+  triggers:
+  - type: turned_on
+    device_id: 950d52bd198c8ed69c3b2cd9efdcbbd0
+    entity_id: 3f3b015a6f2603470c88bb9229ca0622
+    domain: remote
+    trigger: device
+  - device_id: bcbb89a1eedfb2b2691376fb02b53c7e
+    domain: media_player
+    entity_id: 9217bed82855a5361019bce3ea9456a4
+    type: turned_on
+    trigger: device
+  conditions: []
+  actions:
+  - action: light.turn_off
+    metadata: {}
+    data:
+      transition: 3
+    target:
+      area_id:
+      - dining
+      - living_room
+  mode: single
+- id: '1745834682406'
+  alias: Enable bedtime auzomations
+  description: ''
+  triggers:
+  - trigger: time
+    at: 01:00:00
+  conditions: []
+  actions:
+  - action: automation.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - automation.time_to_sleep
+      - automation.keep_media_players_off_after_bedtime
+  mode: single
+- id: '1746147794922'
+  alias: Dining Dimmer Switch buttons
+  description: ''
+  use_blueprint:
+    path: EmilZackrisson/philips_hue_switch_rwl022.yaml
+    input:
+      remote: 7b11e53a3088f4b5873c288e3564d239
+      button_1_single_press:
+      - action: light.toggle
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.dining
+      button_2_single_press:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          brightness_step_pct: 23
+          transition: 1
+        target:
+          entity_id: light.dining
+      button_3_single_press:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          brightness_step_pct: -23
+          transition: 1
+        target:
+          entity_id: light.dining
+      button_4_single_press:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          brightness_pct: 1
+          transition: 0
+        target:
+          entity_id: light.dining
+      button_2_double_press:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          brightness_pct: 100
+          transition: 0
+        target:
+          entity_id: light.dining
+      button_3_double_press:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          brightness_pct: 1
+          transition: 0
+        target:
+          entity_id: light.dining
+- id: '1746639673206'
+  alias: Agata's dimmer switch
+  description: ''
+  use_blueprint:
+    path: EmilZackrisson/philips_hue_switch_rwl022.yaml
+    input:
+      remote: 9761558a633227b400794831e7e993ce
+      button_1_single_press:
+      - action: light.toggle
+        metadata: {}
+        data:
+          transition: 1
+        target:
+          entity_id: light.white_wardrobe
+      button_2_single_press:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          transition: 1
+          brightness_step_pct: 15
+        target:
+          area_id: agata_bedroom
+      button_3_single_press:
+      - action: light.toggle
+        metadata: {}
+        data:
+          transition: 1
+          brightness_pct: -15
+        target:
+          area_id: agata_bedroom
+- id: '1748282585459'
+  alias: Soil Humidity alert
+  description: ''
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - sensor.third_reality_box_2_humidity
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+    below: 35
+  conditions: []
+  actions:
+  - action: notify.my_notification_group
+    metadata: {}
+    data:
+      title: "\U0001FAB4 Low plants humidity"
+      message: "Humidity is below 35%, please water us! \U0001F4A6"
+      data:
+        data:
+          tag: low_soil_humidity_alert
+          sticky: true
+  mode: single
+- id: '1750269205418'
+  alias: Master bedroom STYRBAR IKEA remote
+  description: ''
+  use_blueprint:
+    path: Malte/zha-ikea-four-button-remote-styrbar-for-lights-e2001-e2002.yaml
+    input:
+      remote: baa1e9b2cb132d22e55c7f651f665096
+      light:
+        entity_id: light.master_lights
+      hold_time: 0.25
+      button_left_short:
+      - action: switch.toggle
+        metadata: {}
+        target:
+          entity_id: switch.flower_lamp
+        data: {}
+      button_right_short:
+      - action: switch.toggle
+        metadata: {}
+        target:
+          entity_id: switch.flower_lamp
+        data: {}
+- id: '1750711439762'
+  alias: Turn off lights for the night
+  description: ''
+  triggers:
+  - trigger: time
+    at: '23:00:00'
+  conditions: []
+  actions:
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      area_id:
+      - dining
+      - living_room
+      - sofia_s_bedroom
+      entity_id: light.dlight_d3zm7ocz
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      area_id: agata_bedroom
+  mode: single
+- id: '1757533921701'
+  alias: Baby, did you forget to take your meds?
+  description: ''
+  triggers:
+  - trigger: time
+    at: 08:00:00
+  conditions: []
+  actions:
+  - action: media_player.play_media
+    target:
+      entity_id: media_player.marantz_cinema_70s_2
+    data:
+      media_content_id: media-source://media_source/local/Dionysos/media/music/Placebo/Meds/Placebo_Meds_01_Meds.flac
+      media_content_type: audio/flac
+    metadata:
+      title: Placebo_Meds_01_Meds.flac
+      thumbnail:
+      media_class: music
+      children_media_class:
+      navigateIds:
+      - {}
+      - media_content_type: app
+        media_content_id: media-source://media_source
+      - media_content_type: ''
+        media_content_id: media-source://media_source/local/Dionysos
+      - media_content_type: ''
+        media_content_id: media-source://media_source/local/Dionysos/media
+      - media_content_type: ''
+        media_content_id: media-source://media_source/local/Dionysos/media/music
+      - media_content_type: ''
+        media_content_id: media-source://media_source/local/Dionysos/media/music/Placebo
+      - media_content_type: ''
+        media_content_id: media-source://media_source/local/Dionysos/media/music/Placebo/Meds
+  mode: single
+- id: '1757743875305'
+  alias: 'Wakey wakey '
+  description: ''
+  triggers:
+  - trigger: time
+    at: 08:00:00
+  conditions: []
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      transition: 300
+      brightness_pct: 100
+      color_temp_kelvin: 5663
+    target:
+      area_id: master_bedroom
+  - delay:
+      hours: 1
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      area_id: master_bedroom
+  mode: single
+- id: '1757756268413'
+  alias: Set input on AVR when RPi streams
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - media_player.plex_plexamp_marantz
+    to: playing
+  conditions: []
+  actions:
+  - action: media_player.select_source
+    metadata: {}
+    data:
+      source: Plexamp
+    target:
+      entity_id:
+      - media_player.marantz_cinema_70s_2
+  mode: single
+- id: '1762629311289'
+  alias: Artbench remote
+  description: ''
+  use_blueprint:
+    path: Malte/zha-ikea-four-button-remote-styrbar-for-lights-e2001-e2002.yaml
+    input:
+      remote: cf229bfb1812df02b705ab497ea2bb45
+      light:
+        entity_id: light.playroom_ambiance
+      brightness: 100
+      hold_time: 1
+      force_brightness: true
+      button_left_short:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          color_temp_kelvin: 6008
+          brightness_pct: 100
+        target:
+          entity_id: light.playroom_ambiance
+      button_right_short:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          rgb_color:
+          - 226
+          - 122
+          - 255
+          brightness_pct: 100
+        target:
+          entity_id: light.playroom_ambiance
+- id: '1764578189267'
+  alias: "\U0001F338 Flower lamp on"
+  description: ''
+  triggers:
+  - trigger: time
+    at: 07:00:00
+  conditions: []
+  actions:
+  - action: switch.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.flower_lamp
+  mode: single
+- id: '1764578256176'
+  alias: "\U0001F338 Flower lamp off"
+  description: ''
+  triggers:
+  - trigger: time
+    at: '19:00:00'
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.flower_lamp
+  mode: single
+- id: '1769367234407'
+  alias: Entrance IKEA Somrig Controls
+  description: Turn on the vacuum
+  use_blueprint:
+    path: blueprint-somrig-1-2.bearstorm.workers.dev/.yaml
+    input:
+      remote_device: 7a70cb622125a3c77331fa3aa8bd5e1f
+      dots_1_press_action:
+      - action: button.press
+        metadata: {}
+        data: {}
+        target:
+          entity_id: button.saros_10r_vacuum_entrance
+      dots_2_press_action:
+      - action: button.press
+        metadata: {}
+        target:
+          entity_id: button.saros_10r_full_cleaning
+        data: {}
+      dots_1_double_press_action:
+      - action: vacuum.stop
+        metadata: {}
+        target:
+          entity_id: vacuum.saros_10r
+        data: {}

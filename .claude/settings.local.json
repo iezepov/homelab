@@ -22,7 +22,22 @@
       "Bash(docker compose:*)",
       "Bash(git push:*)",
       "Bash(docker run:*)",
-      "Bash(docker exec:*)"
+      "Bash(docker exec:*)",
+      "Bash(docker restart:*)",
+      "Bash(git -C /home/baddog/docker status)",
+      "Bash(git -C /home/baddog/docker diff)",
+      "Bash(git -C /home/baddog/docker push)",
+      "Bash(tailscale status:*)",
+      "Bash(ssh:*)",
+      "Bash(nc -zv:*)",
+      "Bash(tailscale ssh:*)",
+      "Bash(mkdir:*)",
+      "Bash(git mv:*)",
+      "Bash(sudo chown:*)",
+      "Bash(mv:*)",
+      "Bash(git reset:*)",
+      "Bash(rsync:*)",
+      "Bash(git:*)"
     ]
   }
 }
