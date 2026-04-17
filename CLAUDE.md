@@ -49,7 +49,7 @@ ssh -p 22222 root@homeassistant
 ### Common Commands
 
 ```bash
-cd ~/docker/ubuntu
+cd ~/homelab/ubuntu
 
 # Start all services
 docker compose up -d

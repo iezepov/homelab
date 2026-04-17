@@ -53,16 +53,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
-  portainer:
-    image: portainer/portainer-ce
-    container_name: portainer
-    restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ../portainer:/data
-    networks:
-      - app
-
   speedtest-tracker:
     image: lscr.io/linuxserver/speedtest-tracker:latest
     container_name: speedtest-tracker

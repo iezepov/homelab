@@ -13,18 +13,6 @@
             icon: proxmox.svg 
             href: https://beelab.bonobo-torino.ts.net
             description: Proxmox VE
-      - Portainer:
-            icon: portainer.svg
-            href: https://portainer.lab.baddog.ch
-            description: Manage docker containers
-            widget:
-                  type: portainer
-                  url: http://portainer:9000
-                  env: 2
-                  key: ptr_w7Eu7lK9k9MqXxyBE8VOzJgoff4VNF69qxz5qOY8pTM=
-            server: my-docker
-            container: portainer
-
 
 - Network:
       - caddy:

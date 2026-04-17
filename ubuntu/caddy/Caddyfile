@@ -40,10 +40,6 @@ paperless.lab.baddog.ch {
 	import auth
 	reverse_proxy paperless:8000
 }
-portainer.lab.baddog.ch {
-	import auth
-	reverse_proxy portainer:9000
-}
 tautulli.lab.baddog.ch {
 	import auth
 	reverse_proxy tautulli:8181
