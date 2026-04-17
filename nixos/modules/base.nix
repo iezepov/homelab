@@ -27,7 +27,7 @@
     # Paste your public SSH key(s) here.
     # The private key never touches this file — only the public key.
     openssh.authorizedKeys.keys = [
-      # "ssh-ed25519 AAAA... baddog@yourmachine"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEOdHCXMy6xXALJZWwHCQj5iUqK/YxLoR3nOq7KjijZE ilya@baddog.ch"
     ];
   };
 
