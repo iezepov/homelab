@@ -39,6 +39,15 @@
 !ubuntu/paperless-ngx/docker-compose.yml
 
 # ========================================
+# NixOS configuration
+# ========================================
+!nixos/
+!nixos/**
+
+# Ignore sops secrets file (contains encrypted secrets, but we allow it)
+# nixos/secrets/secrets.yaml is encrypted so it IS safe to commit
+
+# ========================================
 # Home Assistant node
 # ========================================
 !homeassistant/
