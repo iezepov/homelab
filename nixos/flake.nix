@@ -23,10 +23,10 @@
     nixosConfigurations = {
       # "ubuntu" is the hostname. Build/deploy with:
       #   nixos-rebuild switch --flake .#ubuntu
-      ubuntu = nixpkgs.lib.nixosSystem {
+      lab = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
-          ./hosts/ubuntu/configuration.nix
+          ./hosts/lab/configuration.nix
           sops-nix.nixosModules.sops
         ];
       };

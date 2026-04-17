@@ -1,6 +1,6 @@
 { config, pkgs, ... }:
 
-# This is the top-level config for the "ubuntu" host.
+# This is the top-level config for the "lab" host.
 # It's intentionally thin — it just sets the hostname and imports modules.
 # All actual config lives in modules/ so it stays organized as we add services.
 
@@ -15,7 +15,7 @@
     ../../modules/base.nix
   ];
 
-  networking.hostName = "ubuntu";
+  networking.hostName = "lab";
 
   boot.loader.grub.devices = [ "/dev/sda" ];
 
