@@ -17,7 +17,16 @@
 
   networking.hostName = "ubuntu";
 
-  boot.loader.grub.device = "/dev/sda";
+  boot.loader.grub.devices = [ "/dev/sda" ];
+
+  fileSystems."/" = {
+    device = "/dev/disk/by-uuid/afbdac41-286c-4e79-b479-a571c9e3f29b";
+    fsType = "ext4";
+  };
+
+  swapDevices = [
+    { device = "/dev/disk/by-uuid/dd6280da-e49e-4a4e-b183-87e32c7aa314"; }
+  ];
 
   # This value pins certain stateful defaults (e.g. /etc/passwd format).
   # Set it once to the NixOS version you installed with, then never change it.
