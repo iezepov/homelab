@@ -17,6 +17,8 @@
 
   networking.hostName = "ubuntu";
 
+  boot.loader.grub.device = "/dev/sda";
+
   # This value pins certain stateful defaults (e.g. /etc/passwd format).
   # Set it once to the NixOS version you installed with, then never change it.
   # It does NOT prevent upgrading nixpkgs — it's purely for backwards compat.
