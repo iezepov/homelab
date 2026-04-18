@@ -7,9 +7,7 @@
   description = "baddog homelab NixOS configuration";
 
   inputs = {
-    # nixpkgs is the giant package collection + all service modules.
-    # nixos-25.05 is a stable release branch — good for a "solid build".
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
 
     # sops-nix lets you store secrets encrypted in git (using age keys).
     # Replaces your .env files. We'll wire this up when adding services.
