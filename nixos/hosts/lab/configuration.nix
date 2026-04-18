@@ -46,12 +46,12 @@
 
   # ── Packages ──────────────────────────────────────────────────────────────
   environment.systemPackages = with pkgs; [ git vim htop curl wget nfs-utils ];
+  environment.variables.EDITOR = "vim";
 
   # ── Tailscale ─────────────────────────────────────────────────────────────
   services.tailscale = {
     enable = true;
     useRoutingFeatures = "client";
-    extraUpFlags = [ "--ssh" ];
   };
   networking.firewall.trustedInterfaces = [ "tailscale0" ];
 
