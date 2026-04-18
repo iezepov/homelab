@@ -86,6 +86,9 @@
     options = [ "nfsvers=3" "soft" "x-systemd.automount" "x-systemd.idle-timeout=600" "_netdev" ];
   };
 
+  # ── Nix settings ──────────────────────────────────────────────────────────
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
   # ── Firewall ──────────────────────────────────────────────────────────────
   networking.firewall.enable = true;
   # Service modules will open their own ports — we don't hard-code them here.
