@@ -4,7 +4,7 @@
   imports = [ ./hardware-configuration.nix ];
 
   # ── Sops ──────────────────────────────────────────────────────────────────
-  sops.defaultSopsFile = ../../secrets/secrets.yaml;
+  sops.defaultSopsFile = ./secrets/secrets.yaml;
   sops.age.keyFile = "/etc/age/keys.txt";
   sops.secrets.tailscale_key = {};
 
