@@ -3,6 +3,11 @@
 {
   imports = [ ./hardware-configuration.nix ];
 
+  # ── Sops ──────────────────────────────────────────────────────────────────
+  sops.defaultSopsFile = ../../secrets/secrets.yaml;
+  sops.age.keyFile = "/etc/age/keys.txt";
+  sops.secrets.tailscale_key = {};
+
   # ── Boot ──────────────────────────────────────────────────────────────────
   boot.loader.grub.devices = [ "/dev/sda" ];
 
@@ -52,6 +57,8 @@
   services.tailscale = {
     enable = true;
     useRoutingFeatures = "client";
+    authKeyFile = config.sops.secrets.tailscale_key.path;
+    extraUpFlags = [ "--ssh" ];
   };
   networking.firewall.trustedInterfaces = [ "tailscale0" ];
 
