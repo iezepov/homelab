@@ -13,6 +13,7 @@
 
     # Our modules (we'll add more here as we migrate services)
     ../../modules/base.nix
+    ../../modules/tailscale.nix
   ];
 
   networking.hostName = "lab";
