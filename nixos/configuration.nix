@@ -73,15 +73,15 @@
   };
 
   fileSystems."/mnt/nas/immich" = {
-    device = "192.168.1.117:/volume2/Immich/library";
+    device = "192.168.1.117:/volume2/Immich";
     fsType = "nfs";
-    options = [ "nfsvers=3" "soft" "x-systemd.automount" "x-systemd.idle-timeout=600" "_netdev" ];
+    options = [ "nfsvers=3" "hard" "x-systemd.automount" "x-systemd.idle-timeout=600" "_netdev" ];
   };
 
   fileSystems."/mnt/nas/paperless" = {
     device = "192.168.1.117:/volume2/Paperless";
     fsType = "nfs";
-    options = [ "nfsvers=3" "soft" "x-systemd.automount" "x-systemd.idle-timeout=600" "_netdev" ];
+    options = [ "nfsvers=3" "hard" "x-systemd.automount" "x-systemd.idle-timeout=600" "_netdev" ];
   };
 
   # ── Firewall ──────────────────────────────────────────────────────────────
