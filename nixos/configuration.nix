@@ -71,6 +71,14 @@
     };
   };
 
+  # ── Uptime Kuma ───────────────────────────────────────────────────────────
+  services.uptime-kuma = {
+    enable = true;
+    settings = {
+      PORT = "3001";
+    };
+  };
+
   # ── NFS ───────────────────────────────────────────────────────────────────
   boot.supportedFilesystems = [ "nfs" ];
   services.rpcbind.enable = true;
