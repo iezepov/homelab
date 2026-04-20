@@ -1,5 +1,11 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
+let
+  arrAuth = {
+    method = "External";
+    required = "DisabledForLocalAddresses";
+  };
+in
 {
   imports = [ ./hardware-configuration.nix ];
 
@@ -61,6 +67,30 @@
     extraUpFlags = [ "--ssh" ];
   };
   networking.firewall.trustedInterfaces = [ "tailscale0" ];
+
+  # ── Arr stack ─────────────────────────────────────────────────────────────
+  services.prowlarr = { enable = true; openFirewall = true; settings.auth = arrAuth; };
+  services.radarr   = { enable = true; openFirewall = true; settings.auth = arrAuth; };
+  services.sonarr   = { enable = true; openFirewall = true; settings.auth = arrAuth; };
+  services.lidarr   = { enable = true; openFirewall = true; settings.auth = arrAuth; };
+  # services.bazarr   = { enable = true; openFirewall = true; };
+
+  # ── Downloaders ───────────────────────────────────────────────────────────
+  nixpkgs.config.allowUnfreePredicate = pkg:
+    builtins.elem (lib.getName pkg) [
+      "unrar"
+    ];
+  services.sabnzbd = { enable = true; openFirewall = true; };
+  services.qbittorrent = {
+    enable = true;
+    openFirewall = true;
+    webuiPort = 8081;
+    serverConfig.Preferences = {
+      "WebUI\\LocalHostAuth" = false;              # bypass auth from 127.0.0.1
+      "WebUI\\AuthSubnetWhitelistEnabled" = true;
+      "WebUI\\AuthSubnetWhitelist" = "100.64.0.0/10, 192.168.0.0/16, 127.0.0.0/8";
+    };
+  };
 
   # ── Actaul Budget ─────────────────────────────────────────────────────────
   services.actual = {
