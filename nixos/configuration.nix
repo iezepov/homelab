@@ -50,7 +50,7 @@
   };
 
   # ── Packages ──────────────────────────────────────────────────────────────
-  environment.systemPackages = with pkgs; [ git vim htop curl wget nfs-utils ];
+  environment.systemPackages = with pkgs; [ git lazygit vim htop curl wget nfs-utils ];
   environment.variables.EDITOR = "vim";
 
   # ── Tailscale ─────────────────────────────────────────────────────────────
