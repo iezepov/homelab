@@ -77,9 +77,7 @@ in
 
   # ── Downloaders ───────────────────────────────────────────────────────────
   nixpkgs.config.allowUnfreePredicate = pkg:
-    builtins.elem (lib.getName pkg) [
-      "unrar"
-    ];
+  builtins.elem (lib.getName pkg) [ "unrar" "plexmediaserver" ];
   services.sabnzbd = { enable = true; openFirewall = true; };
   services.qbittorrent = {
     enable = true;
@@ -91,6 +89,10 @@ in
       "WebUI\\AuthSubnetWhitelist" = "100.64.0.0/10, 192.168.0.0/16, 127.0.0.0/8";
     };
   };
+
+  # ── Plex -───────────────────────────────────────────────────────────------
+  services.plex = { enable = true; openFirewall = true; };
+  services.tautulli = { enable = true; openFirewall = true; };
 
   # ── Actaul Budget ─────────────────────────────────────────────────────────
   services.actual = {
