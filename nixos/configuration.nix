@@ -62,6 +62,15 @@
   };
   networking.firewall.trustedInterfaces = [ "tailscale0" ];
 
+  # ── Actaul Budget ─────────────────────────────────────────────────────────
+  services.actual = {
+    enable = true;
+    openFirewall = true;
+    settings = {
+      port = 5006;
+    };
+  };
+
   # ── NFS ───────────────────────────────────────────────────────────────────
   boot.supportedFilesystems = [ "nfs" ];
   services.rpcbind.enable = true;
