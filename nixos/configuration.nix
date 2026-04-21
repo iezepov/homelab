@@ -11,7 +11,7 @@ in
 
   # ── Sops ──────────────────────────────────────────────────────────────────
   sops.defaultSopsFile = ./secrets/secrets.yaml;
-  sops.age.keyFile = "/etc/age/keys.txt";
+  sops.age.keyFile = "/home/baddog/.config/sops/age/keys.txt";
   sops.secrets.tailscale_key = {};
 
   # ── Boot ──────────────────────────────────────────────────────────────────
