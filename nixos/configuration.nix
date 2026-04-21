@@ -12,7 +12,7 @@ in
   # ── Sops ──────────────────────────────────────────────────────────────────
   sops.defaultSopsFile = ./secrets/secrets.yaml;
   sops.age.keyFile = "/home/baddog/.config/sops/age/keys.txt";
-  sops.secrets.tailscale_key = {};
+  
 
   # ── Boot ──────────────────────────────────────────────────────────────────
   boot.loader.grub.devices = [ "/dev/sda" ];
@@ -60,6 +60,7 @@ in
   environment.variables.EDITOR = "vim";
 
   # ── Tailscale ─────────────────────────────────────────────────────────────
+  sops.secrets.tailscale_key = {};
   services.tailscale = {
     enable = true;
     useRoutingFeatures = "client";
@@ -68,6 +69,63 @@ in
   };
   networking.firewall.trustedInterfaces = [ "tailscale0" ];
 
+  # ── Caddy ─────────────────────────────────────────────────────────────────
+  networking.firewall.enable = true;
+  networking.firewall.allowedTCPPorts = [ 22 80 443 ];
+  sops.secrets.cf_api_token = { owner = "caddy"; };
+
+  services.caddy = let
+    forwardAuth = ''
+      forward_auth * http://lighthouse.bonobo-torino.ts.net:31306 {
+        uri /api/authz/forward-auth
+        copy_headers Remote-User Remote-Groups Remote-Email Remote-Name
+      }
+    '';
+
+    sites = {
+      # Lab-native
+      "plex.lab.baddog.ch"           = { url = "http://localhost:32400"; auth = false; };
+      "actual.lab.baddog.ch"         = { url = "http://localhost:5006";  auth = false; };
+      "uptime.lab.baddog.ch"         = { url = "http://localhost:3001";  auth = true;  };
+      "prowlarr.lab.baddog.ch"       = { url = "http://localhost:9696";  auth = true;  };
+      "radarr.lab.baddog.ch"         = { url = "http://localhost:7878";  auth = true;  };
+      "sonarr.lab.baddog.ch"         = { url = "http://localhost:8989";  auth = true;  };
+      "lidarr.lab.baddog.ch"         = { url = "http://localhost:8686";  auth = true;  };
+      "qbittorrent.lab.baddog.ch"    = { url = "http://localhost:8081";  auth = true;  };
+      "sabnzbd.lab.baddog.ch"        = { url = "http://localhost:8080";  auth = true;  };
+      "tautulli.lab.baddog.ch"       = { url = "http://localhost:8181";  auth = true;  };
+
+      # Still on ubuntu — proxied over tailnet
+      "lab.baddog.ch"                = { url = "http://ubuntu.bonobo-torino.ts.net:3000";  auth = true; };  # homepage
+      "nas.lab.baddog.ch"            = { url = "http://dionysos.bonobo-torino.ts.net:5000"; auth = true; };
+      "audiobookshelf.lab.baddog.ch" = { url = "http://ubuntu.bonobo-torino.ts.net:13378"; auth = true; };
+    };
+
+    mkVhost = site: {
+      extraConfig = lib.optionalString site.auth forwardAuth + ''
+        reverse_proxy ${site.url}
+      '';
+    };
+  in {
+    enable = true;
+    package = pkgs.caddy.withPlugins {
+      plugins = [ "github.com/caddy-dns/cloudflare@v0.2.4" ];
+      hash = "sha256-4WF7tIx8d6O/Bd0q9GhMch8lS3nlR5N3Zg4ApA3hrKw=";
+    };
+    environmentFile = config.sops.secrets.cf_api_token.path;
+
+    globalConfig = ''
+      email admin@baddog.ch
+      cert_issuer acme {
+        dns cloudflare {env.CF_API_TOKEN}
+        resolvers 1.1.1.1 8.8.8.8
+      }
+    '';
+
+    virtualHosts = lib.mapAttrs (_: mkVhost) sites;
+  };
+
+  
   # ── Arr stack ─────────────────────────────────────────────────────────────
   services.prowlarr = { enable = true; openFirewall = true; settings.auth = arrAuth; };
   services.radarr   = { enable = true; openFirewall = true; settings.auth = arrAuth; };
@@ -93,6 +151,7 @@ in
   # ── Plex -───────────────────────────────────────────────────────────------
   services.plex = { enable = true; openFirewall = true; };
   services.tautulli = { enable = true; openFirewall = true; };
+  
 
   # ── Actaul Budget ─────────────────────────────────────────────────────────
   services.actual = {
@@ -133,7 +192,5 @@ in
     options = [ "nfsvers=3" "hard" "x-systemd.automount" "x-systemd.idle-timeout=600" "_netdev" ];
   };
 
-  # ── Firewall ──────────────────────────────────────────────────────────────
-  networking.firewall.enable = true;
-  networking.firewall.allowedTCPPorts = [ 22 ];
+  
 }
