@@ -253,10 +253,16 @@ in
   };
 
   # ── Homepage Dash ─────────────────────────────────────────────────────────
+  sops.secrets.homepage_env = {
+    # no owner/group — defaults to root:root
+    mode = "0400";
+    restartUnits = [ "homepage-dashboard.service" ];
+  };
   services.homepage-dashboard = {
     enable = true;
     openFirewall = false;
     allowedHosts = "lab.baddog.ch";
+    environmentFile = config.sops.secrets.homepage_env.path;
 
     settings = {
       title = "baddog Homepage";
@@ -267,7 +273,6 @@ in
         brightness = 50;
         opacity = 80;
       };
-      # providers.openweathermap comes later via sops env
     };
 
     widgets = [
@@ -328,32 +333,31 @@ in
           }
         ];
       }
-      {
-        Network = [
-          {
-            Tailscale = {
-              icon = "tailscale.svg";
-              href = "https://login.tailscale.com/admin/machines";
-              description = "My tailnet";
-            };
-          }
-        ];
-      }
+
       {
         Media = [
           {
             Audiobookshelf = {
               icon = "audiobookshelf.svg";
               href = "https://audiobookshelf.baddog.ch";
-              description = "Listen to something!";
+              description = "Audiobooks";
+              widget = {
+                type = "audiobookshelf";
+                url = "http://localhost:13378";
+                key = "{{HOMEPAGE_VAR_ABS_TOKEN}}";
+              };
             };
           }
           {
             Plex = {
               icon = "plex.svg";
               href = "https://plex.baddog.ch";
-              description = "Plex
-  media server";
+              description = "Plex media server";
+              widget = {
+                type = "tautulli";
+                url = "http://localhost:8181";
+                key = "{{HOMEPAGE_VAR_TAUTULLI_KEY}}";
+              };
             };
           }
           {
@@ -361,6 +365,12 @@ in
               icon = "qbittorrent.svg";
               href = "https://qbittorrent.lab.baddog.ch";
               description = "Torrents";
+              widget = {
+                type = "qbittorrent";
+                url = "http://localhost:8081";
+                # username = "{{HOMEPAGE_VAR_QBIT_USER}}";
+                # password = "{{HOMEPAGE_VAR_QBIT_PASS}}";
+              };
             };
           }
           {
@@ -368,10 +378,16 @@ in
               icon = "sabnzbd.svg";
               href = "https://sabnzbd.lab.baddog.ch";
               description = "Usenet";
+              widget = {
+                type = "sabnzbd";
+                url = "http://localhost:8080";
+                key = "{{HOMEPAGE_VAR_SABNZBD_KEY}}";
+              };
             };
           }
         ];
       }
+
       {
         Arr = [
           {
@@ -379,6 +395,11 @@ in
               icon = "prowlarr.svg";
               href = "https://prowlarr.lab.baddog.ch";
               description = "Indexers";
+              widget = {
+                type = "prowlarr";
+                url = "http://localhost:9696";
+                key = "{{HOMEPAGE_VAR_PROWLARR_KEY}}";
+              };
             };
           }
           {
@@ -386,6 +407,11 @@ in
               icon = "radarr.svg";
               href = "https://radarr.lab.baddog.ch";
               description = "Movies";
+              widget = {
+                type = "radarr";
+                url = "http://localhost:7878";
+                key = "{{HOMEPAGE_VAR_RADARR_KEY}}";
+              };
             };
           }
           {
@@ -393,6 +419,11 @@ in
               icon = "sonarr.svg";
               href = "https://sonarr.lab.baddog.ch";
               description = "TV";
+              widget = {
+                type = "sonarr";
+                url = "http://localhost:8989";
+                key = "{{HOMEPAGE_VAR_SONARR_KEY}}";
+              };
             };
           }
           {
@@ -400,10 +431,33 @@ in
               icon = "lidarr.svg";
               href = "https://lidarr.lab.baddog.ch";
               description = "Music";
+              widget = {
+                type = "lidarr";
+                url = "http://localhost:8686";
+                key = "{{HOMEPAGE_VAR_LIDARR_KEY}}";
+              };
             };
           }
         ];
       }
+
+      {
+        DNS = [
+          {
+            "NextDNS (Personal)" = {
+              icon = "nextdns.svg";
+              href = "https://my.nextdns.io/c216d3";
+              description = "Personal DNS";
+              widget = {
+                type = "nextdns";
+                profile = "c216d3";
+                key = "{{HOMEPAGE_VAR_NEXTDNS}}";
+              };
+            };
+          }
+        ];
+      }
+
       {
         Infra = [
           {
