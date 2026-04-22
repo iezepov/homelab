@@ -107,6 +107,7 @@ in
     let
       sites = {
         "lab.baddog.ch" = "http://localhost:8082";
+        "paperless.lab.baddog.ch" = "http://localhost:28981";
         "actual.lab.baddog.ch" = "http://localhost:5006";
         "uptime.lab.baddog.ch" = "http://localhost:3001";
         "prowlarr.lab.baddog.ch" = "http://localhost:9696";
@@ -149,6 +150,17 @@ in
     mediaLocation = "/mnt/nas/immich/library";
     accelerationDevices = [ "/dev/dri/renderD128" ]; # HW transcoding
     host = "0.0.0.0";
+  };
+
+  # ── Paperless-ngx ─────────────────────────────────────────────────────────
+  services.paperless = {
+    enable = true;
+    mediaDir = "/mnt/nas/paperless/media";
+    consumptionDir = "/mnt/nas/paperless/consume";
+    settings = {
+      PAPERLESS_OCR_LANGUAGE = "eng+deu+rus";
+      PAPERLESS_URL = "https://paperless.lab.baddog.ch";
+    };
   };
 
   # ── Arr stack ─────────────────────────────────────────────────────────────
