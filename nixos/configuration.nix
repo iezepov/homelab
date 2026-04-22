@@ -63,6 +63,13 @@ in
   };
 
   # ── Packages ──────────────────────────────────────────────────────────────
+  nixpkgs.config.allowUnfreePredicate =
+    pkg:
+    builtins.elem (lib.getName pkg) [
+      "unrar"
+      "plexmediaserver"
+      "claude-code"
+    ];
   environment.systemPackages = with pkgs; [
     git
     lazygit
@@ -71,6 +78,7 @@ in
     curl
     wget
     nfs-utils
+    claude-code
   ];
   environment.variables.EDITOR = "vim";
 
@@ -200,12 +208,6 @@ in
   };
 
   # ── Downloaders ───────────────────────────────────────────────────────────
-  nixpkgs.config.allowUnfreePredicate =
-    pkg:
-    builtins.elem (lib.getName pkg) [
-      "unrar"
-      "plexmediaserver"
-    ];
   services.sabnzbd = {
     enable = true;
   };
