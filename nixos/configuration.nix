@@ -151,7 +151,7 @@ in
   services.tautulli = { enable = true; };
 
   # ── Audiobookshelf ────────────────────────────────────────────────────────
-  services.audiobookshelf = { enable = true; port = 13378; };
+  services.audiobookshelf = { enable = true; port = 13378; host = "0.0.0.0"; };
   
   # ── Actaul Budget ─────────────────────────────────────────────────────────
   services.actual = { enable = true; settings = { port = 5006; }; };
