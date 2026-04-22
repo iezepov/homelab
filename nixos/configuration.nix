@@ -368,8 +368,6 @@ in
               widget = {
                 type = "qbittorrent";
                 url = "http://localhost:8081";
-                # username = "{{HOMEPAGE_VAR_QBIT_USER}}";
-                # password = "{{HOMEPAGE_VAR_QBIT_PASS}}";
               };
             };
           }
