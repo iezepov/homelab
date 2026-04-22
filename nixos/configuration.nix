@@ -117,6 +117,10 @@ in
           url = "http://localhost:8082";
           auth = true;
         };
+        "immich.lab.baddog.ch" = {
+          url = "http://localhost:2283";
+          auth = false;
+        };
         "plex.lab.baddog.ch" = {
           url = "http://localhost:32400";
           auth = false;
@@ -188,6 +192,13 @@ in
 
       virtualHosts = lib.mapAttrs (_: mkVhost) sites;
     };
+
+  # ── Immich ────────────────────────────────────────────────────────────────
+  services.immich = {
+    enable = true;
+    mediaLocation = "/mnt/nas/immich/library";
+    accelerationDevices = [ "/dev/dri/renderD128" ]; # HW transcoding
+  };
 
   # ── Arr stack ─────────────────────────────────────────────────────────────
   services.prowlarr = {
