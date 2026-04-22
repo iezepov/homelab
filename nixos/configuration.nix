@@ -105,73 +105,23 @@ in
 
   services.caddy =
     let
-      forwardAuth = ''
-        forward_auth * http://lighthouse.bonobo-torino.ts.net:31306 {
-          uri /api/authz/forward-auth
-          copy_headers Remote-User Remote-Groups Remote-Email Remote-Name
-        }
-      '';
-
       sites = {
-        "lab.baddog.ch" = {
-          url = "http://localhost:8082";
-          auth = true;
-        };
-        "immich.lab.baddog.ch" = {
-          url = "http://localhost:2283";
-          auth = false;
-        };
-        "plex.lab.baddog.ch" = {
-          url = "http://localhost:32400";
-          auth = false;
-        };
-        "actual.lab.baddog.ch" = {
-          url = "http://localhost:5006";
-          auth = false;
-        };
-        "uptime.lab.baddog.ch" = {
-          url = "http://localhost:3001";
-          auth = true;
-        };
-        "prowlarr.lab.baddog.ch" = {
-          url = "http://localhost:9696";
-          auth = true;
-        };
-        "radarr.lab.baddog.ch" = {
-          url = "http://localhost:7878";
-          auth = true;
-        };
-        "sonarr.lab.baddog.ch" = {
-          url = "http://localhost:8989";
-          auth = true;
-        };
-        "lidarr.lab.baddog.ch" = {
-          url = "http://localhost:8686";
-          auth = true;
-        };
-        "qbittorrent.lab.baddog.ch" = {
-          url = "http://localhost:8081";
-          auth = true;
-        };
-        "sabnzbd.lab.baddog.ch" = {
-          url = "http://localhost:8080";
-          auth = true;
-        };
-        "tautulli.lab.baddog.ch" = {
-          url = "http://localhost:8181";
-          auth = true;
-        };
-        # Proxy to NAS machine
-        "nas.lab.baddog.ch" = {
-          url = "http://dionysos.bonobo-torino.ts.net:5000";
-          auth = true;
-        };
+        "lab.baddog.ch" = "http://localhost:8082";
+        "actual.lab.baddog.ch" = "http://localhost:5006";
+        "uptime.lab.baddog.ch" = "http://localhost:3001";
+        "prowlarr.lab.baddog.ch" = "http://localhost:9696";
+        "radarr.lab.baddog.ch" = "http://localhost:7878";
+        "sonarr.lab.baddog.ch" = "http://localhost:8989";
+        "lidarr.lab.baddog.ch" = "http://localhost:8686";
+        "qbittorrent.lab.baddog.ch" = "http://localhost:8081";
+        "sabnzbd.lab.baddog.ch" = "http://localhost:8080";
+        "tautulli.lab.baddog.ch" = "http://localhost:8181";
+        # Proxy to NAS
+        "nas.lab.baddog.ch" = "http://dionysos.bonobo-torino.ts.net:5000";
       };
 
-      mkVhost = site: {
-        extraConfig = lib.optionalString site.auth forwardAuth + ''
-          reverse_proxy ${site.url}
-        '';
+      mkVhost = _: url: {
+        extraConfig = "reverse_proxy ${url}";
       };
     in
     {
@@ -190,7 +140,7 @@ in
         }
       '';
 
-      virtualHosts = lib.mapAttrs (_: mkVhost) sites;
+      virtualHosts = lib.mapAttrs mkVhost sites;
     };
 
   # ── Immich ────────────────────────────────────────────────────────────────
