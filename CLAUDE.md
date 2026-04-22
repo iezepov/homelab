@@ -4,109 +4,109 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a multi-node homelab infrastructure repository managing two Proxmox VMs connected via Tailscale:
+This is a homelab infrastructure repository managing services across multiple nodes connected via Tailscale:
 
 | Node | Tailscale Name | Purpose |
 |------|----------------|---------|
-| **ubuntu** | `ubuntu.bonobo-torino.ts.net` | Docker Compose stack (media, productivity, services) |
+| **lab** | `lab.bonobo-torino.ts.net` | NixOS — all services (media, productivity, photos, documents) |
+| **lighthouse** | `lighthouse.bonobo-torino.ts.net` | Public VPS — Caddy reverse proxy + Authelia for public-facing services |
 | **homeassistant** | `homeassistant.bonobo-torino.ts.net` | Home Assistant OS (smart home) |
 
 ## Repository Structure
 
 ```
 /
-├── ubuntu/                 # Docker stack on ubuntu node
-│   ├── compose.yml         # Main entrypoint
-│   ├── media-compose.yml   # Media services
-│   ├── caddy/              # Reverse proxy
-│   ├── immich/             # Photo management
-│   ├── paperless-ngx/      # Document management
-│   └── homepage/           # Dashboard
+├── nixos/                     # NixOS configuration for "lab" node
+│   ├── flake.nix              # Flake entrypoint (nixos-25.11 + sops-nix)
+│   ├── configuration.nix      # All services, caddy, NFS, etc.
+│   ├── hardware-configuration.nix
+│   ├── secrets/               # SOPS-encrypted secrets
+│   └── .sops.yaml             # SOPS config
 │
-├── homeassistant/          # Home Assistant config
-│   ├── configuration.yaml  # Main HA config
-│   ├── automations.yaml    # Automations
-│   ├── scenes.yaml         # Scenes
-│   ├── blueprints/         # Automation blueprints
-│   └── www/                # Frontend cards (HACS)
+├── ubuntu/                    # Legacy Docker stack (decommissioned)
+│   ├── compose.yml
+│   ├── media-compose.yml
+│   ├── caddy/
+│   ├── immich/
+│   ├── paperless-ngx/
+│   └── homepage/
+│
+├── homeassistant/             # Home Assistant config
+│   ├── configuration.yaml
+│   ├── automations.yaml
+│   ├── scenes.yaml
+│   ├── blueprints/
+│   └── www/                   # Frontend cards (HACS)
 │
 └── CLAUDE.md
 ```
 
-## Connecting to Nodes
-
-```bash
-# Ubuntu node (local or via Tailscale)
-ssh ubuntu
-ssh ubuntu.bonobo-torino.ts.net
-
-# Home Assistant (SSH add-on on port 22222)
-ssh -p 22222 root@homeassistant
-```
-
-## Ubuntu Node - Docker Stack
+## Lab Node (NixOS)
 
 ### Common Commands
 
 ```bash
-cd ~/homelab/ubuntu
+# Apply configuration changes
+sudo nixos-rebuild switch --flake ~/homelab/nixos#lab
 
-# Start all services
-docker compose up -d
+# Check service status
+systemctl status <service-name>
 
-# Restart a specific service
-docker compose restart <service-name>
+# View service logs
+journalctl -u <service-name> -f
 
-# View logs
-docker logs <container-name> --tail 100 -f
-
-# Rebuild caddy after Caddyfile changes
-docker compose build caddy && docker compose up -d caddy
-
-# Pull latest images and recreate
-docker compose pull && docker compose up -d
+# Manage Paperless
+sudo paperless-manage <command>
 ```
 
 ### Architecture
 
-**Compose Structure:**
-- `compose.yml` - Main entrypoint, includes other compose files via `include:`
-  - `media-compose.yml` - Media stack (Jellyfin, Plex, *arr apps, downloaders)
-  - `immich/docker-compose.yml` - Photo management
-  - `paperless-ngx/docker-compose.yml` - Document management
+**Services (all native NixOS modules, no Docker):**
+- **Media:** Plex, Tautulli, Audiobookshelf
+- **Arr stack:** Prowlarr, Radarr, Sonarr, Lidarr
+- **Downloaders:** qBittorrent, SABnzbd
+- **Photos:** Immich (PostgreSQL + Redis + ML, auto-managed)
+- **Documents:** Paperless-ngx (SQLite, OCR: eng+deu+rus)
+- **Apps:** Actual Budget, Uptime Kuma, Homepage Dashboard
+- **Infra:** Caddy, Tailscale, SOPS secrets
 
-**Networks:**
-- `app` - Main bridge network for inter-service communication
-- `paperless_internal_network` - Isolated internal network for Paperless DB/broker
+**Reverse Proxy (two-tier):**
+- **Lab Caddy** (`*.lab.baddog.ch`) — tailnet-only admin services, no auth layer (Tailscale is the auth)
+- **Lighthouse Caddy** (`*.baddog.ch`) — public services (photos, plex, audiobookshelf) with Authelia OAuth
 
 **Storage:**
-NFS volumes from Synology NAS (IP configured via `NAS_IP` env var, default `192.168.1.117`):
-- `nas-media` - Media library (movies, TV, music, torrents, usenet)
-- `nas-immich` - Immich photo uploads
-- `nas-paperless` - Paperless documents
+NFS mounts from Synology NAS (`192.168.1.117` / `dionysos.bonobo-torino.ts.net`):
+- `/mnt/nas/media` → `/volume2/Data` (movies, TV, music, torrents, usenet)
+- `/mnt/nas/immich` → `/volume2/Immich` (photo library)
+- `/mnt/nas/paperless` → `/volume2/Paperless` (documents)
 
-**Reverse Proxy:**
-Caddy with custom build including:
-- `caddy-dns/cloudflare` - DNS challenge for wildcard certs
-- Forward auth via Authelia at `lighthouse.bonobo-torino.ts.net:31306`
-- All services exposed as `<service>.lab.baddog.ch` subdomains
-
-**Environment Variables:**
-- Root `.env` provides: `TZ`, `PUID`, `PGID`, `NAS_IP`, `TS_AUTHKEY`
-- Service-specific `.env` files in: `immich/`, `paperless-ngx/`
+**Secrets:**
+Managed via SOPS + age. Key at `/home/baddog/.config/sops/age/keys.txt`.
+- `tailscale_key` — Tailscale auth key
+- `cf_api_token` — Cloudflare API token (Caddy DNS challenge)
+- `homepage_env` — Homepage dashboard API keys
 
 ### Key Integrations
 
-- **Media Pipeline:** Prowlarr → Radarr/Sonarr/Lidarr → qBittorrent/SABnzbd → Jellyfin/Plex
-- **VPN Routing:** Tailscale gateway container configured with exit node for download clients
-- **Monitoring:** Watchtower for auto-updates, Tautulli for Plex stats, Speedtest-tracker for bandwidth
+- **Media Pipeline:** Prowlarr → Radarr/Sonarr/Lidarr → qBittorrent/SABnzbd → Plex
+- **Monitoring:** Tautulli for Plex stats, Uptime Kuma for service health
+
+## Lighthouse Node
+
+Public-facing VPS running Caddy + Authelia (Docker). Proxies public domains to lab's Tailscale IP (`100.101.71.81`):
+- `photos.baddog.ch` → lab:2283 (Immich)
+- `plex.baddog.ch` → lab:32400
+- `audiobookshelf.baddog.ch` → lab:13378
+- `auth.baddog.ch` → Authelia
+
+Caddy config: `ssh root@lighthouse` → `/root/caddy/Caddyfile`
 
 ## Home Assistant Node
 
 ### Syncing Config
 
 ```bash
-# Pull config from HA to repo (from ubuntu node)
+# Pull config from HA to repo
 rsync -av --progress -e "ssh -p 22222" \
   --exclude='.storage' --exclude='*.db*' --exclude='*.log*' \
   --exclude='deps/' --exclude='tts/' --exclude='.cloud/' \
@@ -149,7 +149,6 @@ rsync -av --progress -e "ssh -p 22222" \
 
 ## Deployment Workflow
 
-1. Make changes in this repo
-2. Commit and push
-3. For ubuntu: `cd ~/docker/ubuntu && git pull && docker compose up -d`
-4. For HA: Use rsync to push config, then reload via HA UI or `ha core restart`
+1. Edit `nixos/configuration.nix`
+2. `sudo nixos-rebuild switch --flake ~/homelab/nixos#lab`
+3. For HA: Use rsync to push config, then reload via HA UI or `ha core restart`
