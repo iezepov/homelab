@@ -98,7 +98,6 @@ in
       # Still on ubuntu — proxied over tailnet
       "lab.baddog.ch"                = { url = "http://ubuntu.bonobo-torino.ts.net:3000";  auth = true; };  # homepage
       "nas.lab.baddog.ch"            = { url = "http://dionysos.bonobo-torino.ts.net:5000"; auth = true; };
-      "audiobookshelf.lab.baddog.ch" = { url = "http://ubuntu.bonobo-torino.ts.net:13378"; auth = true; };
     };
 
     mkVhost = site: {
@@ -127,19 +126,18 @@ in
 
   
   # ── Arr stack ─────────────────────────────────────────────────────────────
-  services.prowlarr = { enable = true; openFirewall = true; settings.auth = arrAuth; };
-  services.radarr   = { enable = true; openFirewall = true; settings.auth = arrAuth; };
-  services.sonarr   = { enable = true; openFirewall = true; settings.auth = arrAuth; };
-  services.lidarr   = { enable = true; openFirewall = true; settings.auth = arrAuth; };
-  # services.bazarr   = { enable = true; openFirewall = true; };
+  services.prowlarr = { enable = true; settings.auth = arrAuth; };
+  services.radarr   = { enable = true; settings.auth = arrAuth; };
+  services.sonarr   = { enable = true; settings.auth = arrAuth; };
+  services.lidarr   = { enable = true; settings.auth = arrAuth; };
 
   # ── Downloaders ───────────────────────────────────────────────────────────
   nixpkgs.config.allowUnfreePredicate = pkg:
   builtins.elem (lib.getName pkg) [ "unrar" "plexmediaserver" ];
-  services.sabnzbd = { enable = true; openFirewall = true; };
+  services.sabnzbd = { enable = true; };
   services.qbittorrent = {
     enable = true;
-    openFirewall = true;
+    openFirewall = true; # Needed for seeding
     webuiPort = 8081;
     serverConfig.Preferences = {
       "WebUI\\LocalHostAuth" = false;              # bypass auth from 127.0.0.1
@@ -148,27 +146,18 @@ in
     };
   };
 
-  # ── Plex -───────────────────────────────────────────────────────────------
-  services.plex = { enable = true; openFirewall = true; };
-  services.tautulli = { enable = true; openFirewall = true; };
-  
+  # ── Plex ──────────────────────────────────────────────────────────────────
+  services.plex = { enable = true; openFirewall = true; }; # Firewall open for discovery
+  services.tautulli = { enable = true; };
 
+  # ── Audiobookshelf ────────────────────────────────────────────────────────
+  services.audiobookshelf = { enable = true; port = 13378; };
+  
   # ── Actaul Budget ─────────────────────────────────────────────────────────
-  services.actual = {
-    enable = true;
-    openFirewall = true;
-    settings = {
-      port = 5006;
-    };
-  };
+  services.actual = { enable = true; settings = { port = 5006; }; };
 
   # ── Uptime Kuma ───────────────────────────────────────────────────────────
-  services.uptime-kuma = {
-    enable = true;
-    settings = {
-      PORT = "3001";
-    };
-  };
+  services.uptime-kuma = { enable = true; settings = { PORT = "3001"; }; };
 
   # ── NFS ───────────────────────────────────────────────────────────────────
   boot.supportedFilesystems = [ "nfs" ];
