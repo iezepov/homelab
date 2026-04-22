@@ -198,6 +198,7 @@ in
     enable = true;
     mediaLocation = "/mnt/nas/immich/library";
     accelerationDevices = [ "/dev/dri/renderD128" ]; # HW transcoding
+    host = "0.0.0.0";
   };
 
   # ── Arr stack ─────────────────────────────────────────────────────────────
