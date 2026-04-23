@@ -82,6 +82,13 @@ in
   ];
   environment.variables.EDITOR = "vim";
 
+  # ── Garbage Collection ────────────────────────────────────────────────────
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 30d";
+  };
+
   # ── Tailscale ─────────────────────────────────────────────────────────────
   sops.secrets.tailscale_key = { };
   services.tailscale = {
