@@ -217,24 +217,32 @@
       }
 
       {
-        DNS = [
+        Apps = [
           {
-            "NextDNS (Personal)" = {
-              icon = "nextdns.svg";
-              href = "https://my.nextdns.io/c216d3";
-              description = "Personal DNS";
+            Immich = {
+              icon = "immich.svg";
+              href = "https://photos.baddog.ch";
+              description = "Photos";
               widget = {
-                type = "nextdns";
-                profile = "c216d3";
-                key = "{{HOMEPAGE_VAR_NEXTDNS}}";
+                type = "immich";
+                url = "http://localhost:2283";
+                key = "{{HOMEPAGE_VAR_IMMICH_KEY}}";
+                version = 2;
               };
             };
           }
-        ];
-      }
-
-      {
-        Apps = [
+          {
+            Paperless = {
+              icon = "paperless-ngx.svg";
+              href = "https://paperless.lab.baddog.ch";
+              description = "Documents";
+              widget = {
+                type = "paperlessngx";
+                url = "http://localhost:28981";
+                key = "{{HOMEPAGE_VAR_PAPERLESS_KEY}}";
+              };
+            };
+          }
           {
             Uptime = {
               icon = "uptime-kuma.svg";
@@ -254,6 +262,18 @@
 
       {
         Infra = [
+          {
+            NextDNS = {
+              icon = "nextdns.svg";
+              href = "https://my.nextdns.io/c216d3";
+              description = "Personal DNS";
+              widget = {
+                type = "nextdns";
+                profile = "c216d3";
+                key = "{{HOMEPAGE_VAR_NEXTDNS}}";
+              };
+            };
+          }
           {
             NAS = {
               icon = "synology.svg";
