@@ -279,6 +279,13 @@
               icon = "synology.svg";
               href = "https://nas.lab.baddog.ch";
               description = "Synology";
+              widget = {
+                type = "diskstation";
+                url = "http://192.168.1.117:5000";
+                username = "{{HOMEPAGE_VAR_NAS_USER}}";
+                password = "{{HOMEPAGE_VAR_NAS_PASS}}";
+                volume = "volume_2";
+              };
             };
           }
         ];
