@@ -275,6 +275,18 @@
             };
           }
           {
+            Tailscale = {
+              icon = "tailscale.svg";
+              href = "https://login.tailscale.com/admin/machines";
+              description = "Mesh VPN";
+              widget = {
+                type = "tailscale";
+                deviceid = "nZp9pScRVy11CNTRL";
+                key = "{{HOMEPAGE_VAR_TAILSCALE_KEY}}";
+              };
+            };
+          }
+          {
             NAS = {
               icon = "synology.svg";
               href = "https://nas.lab.baddog.ch";
