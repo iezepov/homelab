@@ -131,6 +131,13 @@
             };
           }
           {
+            Tautulli = {
+              icon = "tautulli.svg";
+              href = "https://tautulli.lab.baddog.ch";
+              description = "Plex stats";
+            };
+          }
+          {
             qBittorrent = {
               icon = "qbittorrent.svg";
               href = "https://qbittorrent.lab.baddog.ch";
@@ -227,7 +234,7 @@
       }
 
       {
-        Infra = [
+        Apps = [
           {
             Uptime = {
               icon = "uptime-kuma.svg";
@@ -236,19 +243,17 @@
             };
           }
           {
-            Tautulli = {
-              icon = "tautulli.svg";
-              href = "https://tautulli.lab.baddog.ch";
-              description = "Plex stats";
-            };
-          }
-          {
             Actual = {
-              icon = "actual.svg";
+              icon = "actual-budget.svg";
               href = "https://actual.lab.baddog.ch";
               description = "Budget";
             };
           }
+        ];
+      }
+
+      {
+        Infra = [
           {
             NAS = {
               icon = "synology.svg";
