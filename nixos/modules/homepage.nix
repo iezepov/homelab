@@ -14,7 +14,7 @@
 
     settings = {
       title = "baddog Homepage";
-      favicon = "bruno.png";
+      favicon = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/bruno.png";
       theme = "dark";
       color = "stone";
       background = {
