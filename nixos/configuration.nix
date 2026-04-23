@@ -75,6 +75,11 @@
   ];
   environment.variables.EDITOR = "vim";
 
+  # ── System tuning ────────────────────────────────────────────────────────
+  services.journald.extraConfig = "SystemMaxUse=500M";
+  zramSwap.enable = true;
+  services.fstrim.enable = true;
+
   # ── Nix ───────────────────────────────────────────────────────────────────
   nix.gc = {
     automatic = true;
