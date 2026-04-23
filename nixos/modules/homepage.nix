@@ -66,6 +66,28 @@
       {
         Home = [
           {
+            "Caddy (lab)" = {
+              icon = "caddy.svg";
+              href = "https://lab.baddog.ch";
+              description = "Private reverse proxy";
+              widget = {
+                type = "caddy";
+                url = "http://localhost:2019";
+              };
+            };
+          }
+          {
+            "Caddy (Public)" = {
+              icon = "caddy.svg";
+              href = "https://baddog.ch";
+              description = "Public reverse proxy";
+              widget = {
+                type = "caddy";
+                url = "http://lighthouse.bonobo-torino.ts.net:2019";
+              };
+            };
+          }
+          {
             "Home Assistant" = {
               icon = "home-assistant.svg";
               href = "http://homeassistant.local:8123";
