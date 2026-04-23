@@ -14,6 +14,7 @@
 
     settings = {
       title = "baddog Homepage";
+      favicon = "bruno.png";
       theme = "dark";
       color = "stone";
       background = {
