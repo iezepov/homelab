@@ -37,7 +37,8 @@
       "Bash(mv:*)",
       "Bash(git reset:*)",
       "Bash(rsync:*)",
-      "Bash(git:*)"
+      "Bash(git:*)",
+      "Bash(systemctl status:*)"
     ]
   }
 }

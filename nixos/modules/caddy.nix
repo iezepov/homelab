@@ -10,8 +10,8 @@ let
     "radarr.lab.baddog.ch"      = "http://localhost:7878";
     "sonarr.lab.baddog.ch"      = "http://localhost:8989";
     "lidarr.lab.baddog.ch"      = "http://localhost:8686";
-    "qbittorrent.lab.baddog.ch" = "http://localhost:8081";
-    "sabnzbd.lab.baddog.ch"     = "http://localhost:8080";
+    "qbittorrent.lab.baddog.ch" = "http://192.168.15.1:8081";
+    "sabnzbd.lab.baddog.ch"     = "http://192.168.15.1:8080";
     "tautulli.lab.baddog.ch"    = "http://localhost:8181";
     # Proxy to NAS
     "nas.lab.baddog.ch"         = "http://dionysos.bonobo-torino.ts.net:5000";

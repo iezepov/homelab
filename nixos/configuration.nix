@@ -12,6 +12,7 @@
     ./modules/media.nix
     ./modules/apps.nix
     ./modules/homepage.nix
+    ./modules/vpn.nix
   ];
 
   # ── Sops ──────────────────────────────────────────────────────────────────
@@ -72,6 +73,7 @@
     wget
     nfs-utils
     claude-code
+    sops
   ];
   environment.variables.EDITOR = "vim";
 

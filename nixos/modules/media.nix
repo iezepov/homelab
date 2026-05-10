@@ -27,6 +27,11 @@ in
 
   # ── Downloaders ──────────────────────────────────────────────────────────
   services.sabnzbd.enable = true;
+  systemd.services.sabnzbd.vpnConfinement = {
+    enable = true;
+    vpnNamespace = "wg";
+  };
+
   services.qbittorrent = {
     enable = true;
     openFirewall = true; # Needed for seeding
@@ -34,8 +39,12 @@ in
     serverConfig.Preferences = {
       "WebUI\\LocalHostAuth" = false;
       "WebUI\\AuthSubnetWhitelistEnabled" = true;
-      "WebUI\\AuthSubnetWhitelist" = "100.64.0.0/10, 192.168.0.0/16, 127.0.0.0/8";
+      "WebUI\\AuthSubnetWhitelist" = "100.64.0.0/10, 192.168.0.0/16, 127.0.0.0/8, 192.168.15.0/24";
     };
+  };
+  systemd.services.qbittorrent.vpnConfinement = {
+    enable = true;
+    vpnNamespace = "wg";
   };
 
   # ── Plex ─────────────────────────────────────────────────────────────────
