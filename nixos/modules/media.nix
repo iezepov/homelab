@@ -37,9 +37,31 @@ in
     openFirewall = true; # Needed for seeding
     webuiPort = 8081;
     serverConfig.Preferences = {
+      # WebUI auth
       "WebUI\\LocalHostAuth" = false;
       "WebUI\\AuthSubnetWhitelistEnabled" = true;
       "WebUI\\AuthSubnetWhitelist" = "100.64.0.0/10, 192.168.0.0/16, 127.0.0.0/8, 192.168.15.0/24";
+
+      # Downloads
+      "Downloads\\SavePath" = "/mnt/nas/media/torrents/";
+      "Downloads\\TorrentContentLayout" = "Original";
+      "Downloads\\PreallocateAll" = true;
+      "Downloads\\DeleteTorrentsAsAdded" = true;
+
+      # Connection
+      "Connection\\UPnP" = false;
+      "Connection\\RandomPort" = false;
+
+      # BitTorrent - privacy/discovery
+      "Bittorrent\\DHT" = true;
+      "Bittorrent\\PeX" = true;
+      "Bittorrent\\LSD" = true;
+      "Bittorrent\\AnonymousMode" = false;
+      "Bittorrent\\Encryption" = 1; # 0=prefer plaintext, 1=prefer encrypted, 2=require encrypted
+
+      # Seeding limits - disabled
+      "Bittorrent\\MaxRatio" = -1;
+      "Bittorrent\\MaxSeedingMinutes" = -1;
     };
   };
   systemd.services.qbittorrent.vpnConfinement = {
