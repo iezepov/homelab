@@ -6,10 +6,6 @@
 !.env.example
 !AGENTS.md
 
-# Claude Code settings
-!.claude/
-!.claude/**
-
 # ========================================
 # Ubuntu node (Docker stack)
 # ========================================
