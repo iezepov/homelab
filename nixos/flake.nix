@@ -11,15 +11,19 @@
       url = "github:Maroka-chan/VPN-Confinement";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    pi = {
+      url = "github:lukasl-dev/pi.nix";
+    };
   };
 
-  outputs = { self, nixpkgs, sops-nix, vpn-confinement, ... }: {
+  outputs = { self, nixpkgs, sops-nix, vpn-confinement, pi, ... }: {
     nixosConfigurations.lab = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
         ./configuration.nix
         sops-nix.nixosModules.sops
         vpn-confinement.nixosModules.default
+        pi.nixosModules.default
       ];
     };
   };
