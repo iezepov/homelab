@@ -9,6 +9,11 @@
     host = "0.0.0.0";
   };
 
+  users.users.immich.extraGroups = [
+    "render"
+    "video"
+  ];
+
   # ── Paperless-ngx ────────────────────────────────────────────────────────
   services.paperless = {
     enable = true;
