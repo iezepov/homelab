@@ -1,154 +1,33 @@
-# CLAUDE.md
+# Homelab Repository Guide
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This repository contains infrastructure for three Tailscale-connected systems:
 
-## Overview
+- `lab` (`lab.bonobo-torino.ts.net`): the primary NixOS host. Its complete declarative configuration is under `nixos/`; service definitions are split across `nixos/modules/`.
+- `homeassistant` (`homeassistant.bonobo-torino.ts.net`): Home Assistant OS configuration tracked under `homeassistant/`.
+- `lighthouse` (`lighthouse.bonobo-torino.ts.net`): an externally managed public VPS. Its Caddy/Authelia configuration is not stored in this repository.
 
-This is a homelab infrastructure repository managing services across multiple nodes connected via Tailscale:
+The NixOS `lab` and Home Assistant OS `homeassistant` systems run as Proxmox VMs on the same physical host. The coding agent runs on the `lab` NixOS VM, so local commands and service inspection target that system unless stated otherwise.
 
-| Node | Tailscale Name | Purpose |
-|------|----------------|---------|
-| **lab** | `lab.bonobo-torino.ts.net` | NixOS — all services (media, productivity, photos, documents) |
-| **lighthouse** | `lighthouse.bonobo-torino.ts.net` | Public VPS — Caddy reverse proxy + Authelia for public-facing services |
-| **homeassistant** | `homeassistant.bonobo-torino.ts.net` | Home Assistant OS (smart home) |
+`ubuntu/` is the legacy Docker deployment and is retained for reference; it is not the current lab deployment.
 
-## Repository Structure
+## Important operational details
 
-```
-/
-├── nixos/                     # NixOS configuration for "lab" node
-│   ├── flake.nix              # Flake entrypoint (nixos-25.11 + sops-nix)
-│   ├── configuration.nix      # All services, caddy, NFS, etc.
-│   ├── hardware-configuration.nix
-│   ├── secrets/               # SOPS-encrypted secrets
-│   └── .sops.yaml             # SOPS config
-│
-├── ubuntu/                    # Legacy Docker stack (decommissioned)
-│   ├── compose.yml
-│   ├── media-compose.yml
-│   ├── caddy/
-│   ├── immich/
-│   ├── paperless-ngx/
-│   └── homepage/
-│
-├── homeassistant/             # Home Assistant config
-│   ├── configuration.yaml
-│   ├── automations.yaml
-│   ├── scenes.yaml
-│   ├── blueprints/
-│   └── www/                   # Frontend cards (HACS)
-│
-└── CLAUDE.md
-```
+- The active NixOS flake target is `nixos#lab`, using nixpkgs `nixos-25.11`, sops-nix, VPN-Confinement, and the Pi NixOS module.
+- Apply lab changes with:
+  `sudo nixos-rebuild switch --flake ~/homelab/nixos#lab`
+- Secrets are managed with SOPS and age. The local age key is expected at `/home/baddog/.config/sops/age/keys.txt`; do not replace encrypted secrets with plaintext. Current secret names include `tailscale_key`, `cf_api_token`, `homepage_env`, and `protonvpn_wg_conf`.
+- Lab storage is provided by NFS from the Synology NAS at `192.168.1.117` and mounted under `/mnt/nas/`. The mount definitions and service-specific paths are authoritative in `nixos/configuration.nix` and the modules.
+- The lab uses Intel GPU acceleration for Plex and Immich. Keep their `render`/`video` device access aligned with the host graphics configuration when changing media services.
+- `nixos/modules/vpn.nix` defines a ProtonVPN WireGuard namespace and NAT-PMP port renewal. Downloader VPN confinement in `media.nix` is currently commented out; do not assume qBittorrent or SABnzbd are VPN-routed without checking the live configuration.
+- Lab Caddy is configured in `nixos/modules/caddy.nix`; Lighthouse Caddy is separate external state. Public services are proxied from Lighthouse to the lab over Tailscale, so changes to public routing may require work on both hosts.
 
-## Lab Node (NixOS)
+## Home Assistant synchronization
 
-### Common Commands
+The checked-in Home Assistant configuration intentionally excludes runtime state and secrets. When synchronizing with the HA host, preserve these exclusions:
 
-```bash
-# Apply configuration changes
-sudo nixos-rebuild switch --flake ~/homelab/nixos#lab
+- `.storage`, databases, logs, `deps/`, `tts/`, `.cloud/`, `custom_components/`, and `.HA_VERSION`
+- `secrets.yaml` and `go2rtc.yaml` when pushing from this repository
 
-# Check service status
-systemctl status <service-name>
+The repository contains examples for `secrets.yaml` and `go2rtc.yaml`; the live files are not tracked. HACS components and other excluded runtime configuration may exist only on the Home Assistant host.
 
-# View service logs
-journalctl -u <service-name> -f
-
-# Manage Paperless
-sudo paperless-manage <command>
-```
-
-### Architecture
-
-**Services (all native NixOS modules, no Docker):**
-- **Media:** Plex, Tautulli, Audiobookshelf
-- **Arr stack:** Prowlarr, Radarr, Sonarr, Lidarr
-- **Downloaders:** qBittorrent, SABnzbd
-- **Photos:** Immich (PostgreSQL + Redis + ML, auto-managed)
-- **Documents:** Paperless-ngx (SQLite, OCR: eng+deu+rus)
-- **Apps:** Actual Budget, Uptime Kuma, Homepage Dashboard
-- **Infra:** Caddy, Tailscale, SOPS secrets
-
-**Reverse Proxy (two-tier):**
-- **Lab Caddy** (`*.lab.baddog.ch`) — tailnet-only admin services, no auth layer (Tailscale is the auth)
-- **Lighthouse Caddy** (`*.baddog.ch`) — public services (photos, plex, audiobookshelf) with Authelia OAuth
-
-**Storage:**
-NFS mounts from Synology NAS (`192.168.1.117` / `dionysos.bonobo-torino.ts.net`):
-- `/mnt/nas/media` → `/volume2/Data` (movies, TV, music, torrents, usenet)
-- `/mnt/nas/immich` → `/volume2/Immich` (photo library)
-- `/mnt/nas/paperless` → `/volume2/Paperless` (documents)
-
-**Secrets:**
-Managed via SOPS + age. Key at `/home/baddog/.config/sops/age/keys.txt`.
-- `tailscale_key` — Tailscale auth key
-- `cf_api_token` — Cloudflare API token (Caddy DNS challenge)
-- `homepage_env` — Homepage dashboard API keys
-
-### Key Integrations
-
-- **Media Pipeline:** Prowlarr → Radarr/Sonarr/Lidarr → qBittorrent/SABnzbd → Plex
-- **Monitoring:** Tautulli for Plex stats, Uptime Kuma for service health
-
-## Lighthouse Node
-
-Public-facing VPS running Caddy + Authelia (Docker). Proxies public domains to lab's Tailscale IP (`100.101.71.81`):
-- `photos.baddog.ch` → lab:2283 (Immich)
-- `plex.baddog.ch` → lab:32400
-- `audiobookshelf.baddog.ch` → lab:13378
-- `auth.baddog.ch` → Authelia
-
-Caddy config: `ssh root@lighthouse` → `/root/caddy/Caddyfile`
-
-## Home Assistant Node
-
-### Syncing Config
-
-```bash
-# Pull config from HA to repo
-rsync -av --progress -e "ssh -p 22222" \
-  --exclude='.storage' --exclude='*.db*' --exclude='*.log*' \
-  --exclude='deps/' --exclude='tts/' --exclude='.cloud/' \
-  --exclude='custom_components/' --exclude='.HA_VERSION' \
-  root@homeassistant:/homeassistant/ ./homeassistant/
-
-# Push config to HA
-rsync -av --progress -e "ssh -p 22222" \
-  --exclude='secrets.yaml' --exclude='go2rtc.yaml' \
-  ./homeassistant/ root@homeassistant:/homeassistant/
-```
-
-### Key Components
-
-**Integrations:**
-- Philips Hue (lights, rooms)
-- Zigbee (ZHA) - IKEA remotes (STYRBAR, Somrig), sensors
-- Marantz CINEMA 70s AVR
-- XGIMI projector
-- Tapo cameras (via go2rtc)
-- Robot vacuum (Saros 10R)
-
-**Automations:**
-- Bedtime routines (lights dim, media off, sleep music)
-- Dimmer switch controls (Hue, IKEA)
-- Media player auto-control (projector turns off lights)
-- Plant humidity alerts
-- Wake-up light sequences
-
-**Custom Components (via HACS):**
-- dlight
-- webrtc
-
-### Secrets Management
-
-- `secrets.yaml` - Contains actual secrets (gitignored)
-- `secrets.yaml.example` - Template with placeholders
-- `go2rtc.yaml` - Camera streams with credentials (gitignored)
-- `go2rtc.yaml.example` - Template without credentials
-
-## Deployment Workflow
-
-1. Edit `nixos/configuration.nix`
-2. `sudo nixos-rebuild switch --flake ~/homelab/nixos#lab`
-3. For HA: Use rsync to push config, then reload via HA UI or `ha core restart`
+The canonical HA deployment path is `/homeassistant/`; after pushing configuration, reload or restart Home Assistant through the HA interface/CLI as appropriate.
