@@ -19,7 +19,7 @@
 
     portMappings = [
       { from = 8081; to = 8081; protocol = "tcp"; } # qBittorrent web UI
-      { from = 8080; to = 8080; protocol = "tcp"; } # SABnzbd web UI
+      # { from = 8080; to = 8080; protocol = "tcp"; } # SABnzbd web UI
     ];
 
     openVPNPorts = [{ port = 60601; protocol = "both"; }];

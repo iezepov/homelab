@@ -27,10 +27,10 @@ in
 
   # ── Downloaders ──────────────────────────────────────────────────────────
   services.sabnzbd.enable = true;
-  systemd.services.sabnzbd.vpnConfinement = {
-    enable = true;
-    vpnNamespace = "wg";
-  };
+  # systemd.services.sabnzbd.vpnConfinement = {
+  #   enable = true;
+  #   vpnNamespace = "wg";
+  # };
 
   services.qbittorrent = {
     enable = true;
@@ -64,10 +64,10 @@ in
       "Bittorrent\\MaxSeedingMinutes" = -1;
     };
   };
-  systemd.services.qbittorrent.vpnConfinement = {
-    enable = true;
-    vpnNamespace = "wg";
-  };
+  # systemd.services.qbittorrent.vpnConfinement = {
+  #   enable = true;
+  #   vpnNamespace = "wg";
+  # };
 
   # ── Plex ─────────────────────────────────────────────────────────────────
   nixpkgs.config.allowUnfreePredicate =

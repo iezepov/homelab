@@ -38,7 +38,10 @@
       "Bash(git reset:*)",
       "Bash(rsync:*)",
       "Bash(git:*)",
-      "Bash(systemctl status:*)"
+      "Bash(systemctl status:*)",
+      "Read(//var/lib/sabnzbd/logs/**)",
+      "Read(//var/lib/sabnzbd/**)",
+      "Bash(sudo tail:*)"
     ]
   }
 }
