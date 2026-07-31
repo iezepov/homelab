@@ -70,6 +70,11 @@ in
   # };
 
   # ── Plex ─────────────────────────────────────────────────────────────────
+  users.users.plex.extraGroups = [
+    "render"
+    "video"
+  ];
+
   nixpkgs.config.allowUnfreePredicate =
     pkg:
     builtins.elem (lib.getName pkg) [

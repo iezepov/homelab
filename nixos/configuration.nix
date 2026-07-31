@@ -52,6 +52,13 @@
 
   system.stateVersion = "25.05";
 
+  # ── Graphics / firmware ──────────────────────────────────────────────────
+  hardware.enableRedistributableFirmware = true;
+  hardware.graphics.enable = true;
+  hardware.graphics.extraPackages = with pkgs; [
+    intel-media-driver
+  ];
+
   # ── User ──────────────────────────────────────────────────────────────────
   users.users.baddog = {
     isNormalUser = true;
