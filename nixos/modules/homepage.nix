@@ -258,6 +258,13 @@
               description = "Budget";
             };
           }
+          {
+            Monica = {
+              icon = "monica.svg";
+              href = "https://monica.lab.baddog.ch";
+              description = "CRM";
+            };
+          }
         ];
       }
 

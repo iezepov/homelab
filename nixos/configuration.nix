@@ -11,6 +11,7 @@
     ./modules/caddy.nix
     ./modules/media.nix
     ./modules/apps.nix
+    ./modules/monica.nix
     ./modules/homepage.nix
     ./modules/vpn.nix
   ];

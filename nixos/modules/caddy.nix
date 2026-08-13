@@ -6,6 +6,7 @@ let
     "paperless.lab.baddog.ch"   = "http://localhost:28981";
     "actual.lab.baddog.ch"      = "http://localhost:5006";
     "uptime.lab.baddog.ch"      = "http://localhost:3001";
+    "monica.lab.baddog.ch"      = "http://localhost:8083";
     "prowlarr.lab.baddog.ch"    = "http://localhost:9696";
     "radarr.lab.baddog.ch"      = "http://localhost:7878";
     "sonarr.lab.baddog.ch"      = "http://localhost:8989";
