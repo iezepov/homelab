@@ -7,10 +7,7 @@
       url = "github:mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    vpn-confinement = {
-      url = "github:Maroka-chan/VPN-Confinement";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    vpn-confinement.url = "github:Maroka-chan/VPN-Confinement";
     pi = {
       url = "github:lukasl-dev/pi.nix";
     };
