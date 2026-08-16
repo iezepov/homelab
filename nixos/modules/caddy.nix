@@ -15,7 +15,7 @@ let
     "sabnzbd.lab.baddog.ch"     = "http://localhost:8080";
     "tautulli.lab.baddog.ch"    = "http://localhost:8181";
     # Proxy to NAS
-    "nas.lab.baddog.ch"         = "http://dionysos.bonobo-torino.ts.net:5000";
+    "nas.lab.baddog.ch"         = "http://192.168.1.117:5000";
   };
 
   mkVhost = _: url: {
