@@ -11,9 +11,12 @@
     pi = {
       url = "github:lukasl-dev/pi.nix";
     };
+    omp = {
+      url = "github:can1357/oh-my-pi";
+    };
   };
 
-  outputs = { self, nixpkgs, sops-nix, vpn-confinement, pi, ... }: {
+  outputs = { self, nixpkgs, sops-nix, vpn-confinement, pi, omp, ... }: {
     nixosConfigurations.lab = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
@@ -21,6 +24,7 @@
         sops-nix.nixosModules.sops
         vpn-confinement.nixosModules.default
         pi.nixosModules.default
+        omp.nixosModules.default
       ];
     };
   };

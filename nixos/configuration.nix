@@ -93,8 +93,9 @@
   ];
   environment.variables.EDITOR = "vim";
 
-  # ── Pi coding agent ─────────────────────────────────────────────────────
+  # ── Coding agents ───────────────────────────────────────────────────────
   programs.pi.coding-agent.enable = true;
+  programs.omp.enable = true;
 
   # ── System tuning ────────────────────────────────────────────────────────
   services.journald.extraConfig = "SystemMaxUse=500M";
