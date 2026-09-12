@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, pkgsUnstable, ... }:
 
 let
   arrAuth = {
@@ -10,23 +10,30 @@ in
   # ── Arr stack ────────────────────────────────────────────────────────────
   services.prowlarr = {
     enable = true;
+    package = pkgsUnstable.prowlarr;
     settings.auth = arrAuth;
   };
   services.radarr = {
     enable = true;
+    package = pkgsUnstable.radarr;
     settings.auth = arrAuth;
   };
   services.sonarr = {
     enable = true;
+    package = pkgsUnstable.sonarr;
     settings.auth = arrAuth;
   };
   services.lidarr = {
     enable = true;
+    package = pkgsUnstable.lidarr;
     settings.auth = arrAuth;
   };
 
   # ── Downloaders ──────────────────────────────────────────────────────────
-  services.sabnzbd.enable = true;
+  services.sabnzbd = {
+    enable = true;
+    package = pkgsUnstable.sabnzbd;
+  };
   # systemd.services.sabnzbd.vpnConfinement = {
   #   enable = true;
   #   vpnNamespace = "wg";
@@ -34,6 +41,7 @@ in
 
   services.qbittorrent = {
     enable = true;
+    package = pkgsUnstable.qbittorrent-nox;
     openFirewall = true; # Needed for seeding
     webuiPort = 8081;
     serverConfig.Preferences = {
@@ -87,6 +95,21 @@ in
     openFirewall = true;
   };
   services.tautulli.enable = true;
+
+  # ── Jellyfin ─────────────────────────────────────────────────────────────
+  # Intel VA-API transcoding via /dev/dri/renderD128.
+  users.users.jellyfin.extraGroups = [
+    "render"
+    "video"
+  ];
+  services.jellyfin = {
+    enable = true;
+    package = pkgsUnstable.jellyfin;
+  };
+  systemd.services.jellyfin = {
+    after = [ "mnt-nas-media.automount" ];
+    wants = [ "mnt-nas-media.automount" ];
+  };
 
   # ── Audiobookshelf ───────────────────────────────────────────────────────
   services.audiobookshelf = {

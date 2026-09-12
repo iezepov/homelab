@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  pkgsUnstable,
   lib,
   ...
 }:
@@ -27,10 +28,6 @@
     device = "/dev/disk/by-uuid/afbdac41-286c-4e79-b479-a571c9e3f29b";
     fsType = "ext4";
   };
-
-  swapDevices = [
-    { device = "/dev/disk/by-uuid/dd6280da-e49e-4a4e-b183-87e32c7aa314"; }
-  ];
 
   # ── System ────────────────────────────────────────────────────────────────
   networking.hostName = "lab";
@@ -113,6 +110,7 @@
   sops.secrets.tailscale_key = { };
   services.tailscale = {
     enable = true;
+    package = pkgsUnstable.tailscale;
     useRoutingFeatures = "client";
     authKeyFile = config.sops.secrets.tailscale_key.path;
     extraUpFlags = [ "--ssh" ];
