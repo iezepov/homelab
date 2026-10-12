@@ -16,6 +16,9 @@ in
     description = "Hermes agent automation";
     shell = pkgs.bashInteractive;
     openssh.authorizedKeys.keys = [ agentPubKey ];
+    # Tooling for the agent's own scripts, scoped to this user's profile so the
+    # system-wide package set stays as it was (jq/python3 are not in it).
+    packages = with pkgs; [ jq python3 curl ];
   };
 
   # Root-equivalent, scoped to the agent user only.

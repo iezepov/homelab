@@ -31,3 +31,24 @@ The checked-in Home Assistant configuration intentionally excludes runtime state
 The repository contains examples for `secrets.yaml` and `go2rtc.yaml`; the live files are not tracked. HACS components and other excluded runtime configuration may exist only on the Home Assistant host.
 
 The canonical HA deployment path is `/homeassistant/`; after pushing configuration, reload or restart Home Assistant through the HA interface/CLI as appropriate.
+
+## Remote agent access (Hermes)
+
+Hermes does not run on this host. It runs on a separate Proxmox VM (`hermes`, tailnet
+`100.117.67.0`) and manages lab remotely, so local-only assumptions in this file still
+apply to whichever agent is running *here*.
+
+- **SSH:** `ssh -p 2222 hermes@lab.baddog.ch`. Port 22 is answered by Tailscale SSH with an
+  interactive per-session check, so automation uses a dedicated sshd instance on **2222**
+  (`sshd-hermes.service`, config `/etc/ssh/sshd-hermes.conf`, `AllowUsers hermes`).
+- **Privileges:** the `hermes` account (uid 1001) has `NOPASSWD: ALL` sudo, scoped to that
+  account only — `baddog` keeps the normal password-required behaviour. Defined in
+  `nixos/modules/hermes-agent.nix`.
+- **Shared identity:** `hermes` uses the same key as the Home Assistant SSH add-on
+  (`hermes-agent-ha`). Rotating that key means updating every host that trusts it.
+- **Repo hygiene:** `/home/baddog` is `0700`, so the agent does git work as baddog
+  (`sudo -u baddog -H git -C /home/baddog/homelab ...`) to keep object ownership correct.
+  Flakes only evaluate git-tracked files: `git add` new files before rebuilding.
+- **Apply:** `sudo nixos-rebuild switch --flake /home/baddog/homelab/nixos#lab`; roll back
+  with `--rollback` or by reverting the commit. The sops/age key is readable as root, so the
+  agent can build and switch unattended.
