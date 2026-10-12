@@ -17,6 +17,9 @@ in
     isNormalUser = true;
     description = "Hermes agent automation";
     shell = pkgs.bashInteractive;
+    # Read the full journal without sudo: journald hides other units' messages
+    # from ordinary users by default (as the agent discovered the hard way).
+    extraGroups = [ "systemd-journal" ];
     openssh.authorizedKeys.keys = [ agentPubKey ];
     # Tooling for the agent's own scripts, scoped to this user's profile so the
     # system-wide package set stays as it was (jq/python3 are not in it).
