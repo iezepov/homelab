@@ -17,6 +17,8 @@ let
     "jellyfin.lab.baddog.ch"    = "http://localhost:8096";
     # Proxy to NAS
     "nas.lab.baddog.ch"         = "http://192.168.1.117:5000";
+    # Obsidian LiveSync backend (CouchDB, localhost-bound); tailnet only
+    "obsidian.lab.baddog.ch"    = "http://127.0.0.1:5984";
   };
 
   mkVhost = _: url: {
