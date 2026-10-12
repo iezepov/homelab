@@ -42,7 +42,11 @@ in
   services.qbittorrent = {
     enable = true;
     package = pkgsUnstable.qbittorrent-nox;
-    openFirewall = true; # Needed for seeding
+    # No host-side listener exists on the webui port since qBittorrent moved into
+    # the VPN namespace, so this firewall opening serves nothing: peer connections
+    # arrive through the ProtonVPN forwarded port inside the namespace, and the UI
+    # is reached through Caddy. Left over from the pre-confinement setup.
+    openFirewall = false;
     webuiPort = 8081;
     serverConfig.Preferences = {
       # WebUI auth
