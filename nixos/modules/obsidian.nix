@@ -19,7 +19,10 @@
 let
   dbName = "obsidian-vault";
   adminPassFile = config.sops.secrets.obsidian_couch_admin_pass.path;
-  backupDir = "/mnt/nas/obsidian/backups";
+  # NOTE: /mnt/nas is not itself a mount — the NFS exports hang *below* it
+  # (/mnt/nas/media = 192.168.1.117:/volume2/Data, etc). A path like /mnt/nas/obsidian
+  # silently lands on lab's root filesystem instead of the NAS.
+  backupDir = "/mnt/nas/media/backups/obsidian";
 in
 {
   # The CouchDB admin password never enters the nix store: sops renders the [admins] section
