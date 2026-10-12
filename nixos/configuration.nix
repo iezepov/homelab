@@ -107,6 +107,12 @@
     options = "--delete-older-than 30d";
   };
 
+  # Reclaim store space: hardlink duplicate files at build time so the store
+  # cannot re-fragment (it had never been deduplicated), and schedule the
+  # optimiser - the nix-optimise unit ships by default but nothing runs it.
+  nix.settings.auto-optimise-store = true;
+  nix.optimise.automatic = true;
+
   # ── Tailscale ─────────────────────────────────────────────────────────────
   sops.secrets.tailscale_key = { };
   services.tailscale = {

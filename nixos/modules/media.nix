@@ -72,10 +72,15 @@ in
       "Bittorrent\\MaxSeedingMinutes" = -1;
     };
   };
-  # systemd.services.qbittorrent.vpnConfinement = {
-  #   enable = true;
-  #   vpnNamespace = "wg";
-  # };
+  # Route all qBittorrent traffic through the ProtonVPN namespace. Without this
+  # the client runs on the host network and leaks peer traffic via the home IP.
+  # Downloads still work: NFS mounts live in the host namespace, so writes to
+  # /mnt/nas use the already-established mount. The web UI stays reachable via
+  # the 8081 port mapping declared in vpn.nix.
+  systemd.services.qbittorrent.vpnConfinement = {
+    enable = true;
+    vpnNamespace = "wg";
+  };
 
   # ── Plex ─────────────────────────────────────────────────────────────────
   users.users.plex.extraGroups = [
