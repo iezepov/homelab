@@ -107,8 +107,19 @@ in
       after=$(readlink -f /nix/var/nix/profiles/system)
       echo "generation now: $after"
 
+      # Bound generation growth in both cases: nix.gc only prunes paths older
+      # than 30d, and this filesystem is too small to keep a month of closures.
+      # Doing it before the early exit means the box is still tidied in weeks
+      # where upstream did not move.
+      prune_and_gc() {
+        nix-env -p /nix/var/nix/profiles/system --delete-generations "+${toString keepGenerations}" || true
+        nix-collect-garbage || true
+        df -h / | tail -1
+      }
+
       if [ "$before" = "$after" ]; then
         echo "no input change - nothing to commit, and no reboot will be needed"
+        prune_and_gc
         exit 0
       fi
 
@@ -119,11 +130,7 @@ in
         || echo "warning: push failed - lock file committed locally only"
       echo "committed + pushed the new flake.lock"
 
-      # Bound generation growth: nix.gc only prunes paths older than 30d, and
-      # this filesystem is too small to keep a month of closures around.
-      nix-env -p /nix/var/nix/profiles/system --delete-generations "+${toString keepGenerations}" || true
-      nix-collect-garbage || true
-      df -h / | tail -1
+      prune_and_gc
     '';
   };
 
