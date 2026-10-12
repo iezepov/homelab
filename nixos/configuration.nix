@@ -86,14 +86,10 @@
     curl
     wget
     nfs-utils
-    claude-code
     sops
   ];
   environment.variables.EDITOR = "vim";
 
-  # ── Coding agents ───────────────────────────────────────────────────────
-  programs.pi.coding-agent.enable = true;
-  programs.omp.enable = true;
 
   # ── System tuning ────────────────────────────────────────────────────────
   services.journald.extraConfig = "SystemMaxUse=500M";
