@@ -31,7 +31,11 @@ let
   flake = "${repo}/nixos#lab";
   # git/nix for baddog, with a login-ish environment so no root ownership or
   # missing-HOME surprises leak into the checkout
+  # util-linux supplies runuser; the unit's PATH is only what is listed below,
+  # so anything the script calls must be there or be referenced absolutely.
   asBaddog = "runuser -u baddog -- env HOME=/home/baddog";
+  # nixos-rebuild is not in pkgs - it lives in the running system profile
+  nixosRebuild = "/run/current-system/sw/bin/nixos-rebuild";
   # how many system generations (plus the booted one) stay as rollback targets
   keepGenerations = 5;
   minFreeMiB = 12582912; # 12 GiB
@@ -48,11 +52,18 @@ in
       coreutils
       gnugrep
       gawk
+      util-linux
     ];
     serviceConfig = {
       Type = "oneshot";
       TimeoutStartSec = "3h";
       Nice = 10;
+      # libgit2 is what nix uses to read this git-repo flake, and unlike the git
+      # CLI it does not consult /etc/gitconfig for safe.directory - it reads
+      # $HOME/.gitconfig. A systemd unit has no HOME, which made the rebuild die
+      # with "repository path '/home/baddog/homelab' is not owned by current
+      # user". See the declarative gitconfig below.
+      Environment = [ "HOME=/root" ];
     };
     script = ''
       set -euo pipefail
@@ -91,7 +102,7 @@ in
       ${asBaddog} nix flake update
 
       echo "== nixos-rebuild switch =="
-      nixos-rebuild switch --flake ${flake}
+      ${nixosRebuild} switch --flake ${flake}
 
       after=$(readlink -f /nix/var/nix/profiles/system)
       echo "generation now: $after"
@@ -168,5 +179,12 @@ in
     }
   ];
   systemd.services.lab-update.serviceConfig.LimitNOFILE = 65536;
+
+  # hermes-agent.nix declares programs.git.config."safe".directory, but nixpkgs
+  # only emits /etc/gitconfig when programs.git.enable is set - so until now
+  # nothing but a hand-written /root/.gitconfig carried that exception. Enable
+  # it, and point root's config at it so libgit2 finds it too.
+  programs.git.enable = true;
+  systemd.tmpfiles.rules = [ "L+ /root/.gitconfig - - - - /etc/gitconfig" ];
   systemd.services.lab-reboot-if-pending.serviceConfig.LimitNOFILE = 65536;
 }
