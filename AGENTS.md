@@ -6,19 +6,19 @@ This repository contains infrastructure for three Tailscale-connected systems:
 - `homeassistant` (`homeassistant.bonobo-torino.ts.net`): Home Assistant OS configuration tracked under `homeassistant/`.
 - `lighthouse` (`lighthouse.bonobo-torino.ts.net`): an externally managed public VPS. Its Caddy/Authelia configuration is not stored in this repository.
 
-The NixOS `lab` and Home Assistant OS `homeassistant` systems run as Proxmox VMs on the same physical host. The coding agent runs on the `lab` NixOS VM, so local commands and service inspection target that system unless stated otherwise.
+The NixOS `lab` and Home Assistant OS `homeassistant` systems run as Proxmox VMs on the same physical host, and the agent runs on a *third* VM (`hermes`) rather than on lab - see *Remote agent access (Hermes)* below for how it reaches this host.
 
 `ubuntu/` is the legacy Docker deployment and is retained for reference; it is not the current lab deployment.
 
 ## Important operational details
 
-- The active NixOS flake target is `nixos#lab`, using nixpkgs `nixos-25.11`, sops-nix, VPN-Confinement, and the Pi NixOS module.
+- The active NixOS flake target is `nixos#lab`, using nixpkgs `nixos-26.05` (with `nixpkgs-unstable` pinned for a few packages), sops-nix and VPN-Confinement. The Pi/oh-my-pi coding-agent modules and the `claude-code` package were removed: the agent manages this host remotely, and their bun/npm closure made every flake bump rebuild hundreds of uncached packages.
 - Apply lab changes with:
   `sudo nixos-rebuild switch --flake ~/homelab/nixos#lab`
-- Secrets are managed with SOPS and age. The local age key is expected at `/home/baddog/.config/sops/age/keys.txt`; do not replace encrypted secrets with plaintext. Current secret names include `tailscale_key`, `cf_api_token`, `homepage_env`, and `protonvpn_wg_conf`.
+- Secrets are managed with SOPS and age. The local age key is expected at `/home/baddog/.config/sops/age/keys.txt`; do not replace encrypted secrets with plaintext. Current secret names include `tailscale_key`, `cf_api_token`, `homepage_env`, `protonvpn_wg_conf`, and `monica_appkey`.
 - Lab storage is provided by NFS from the Synology NAS at `192.168.1.117` and mounted under `/mnt/nas/`. The mount definitions and service-specific paths are authoritative in `nixos/configuration.nix` and the modules.
 - The lab uses Intel GPU acceleration for Plex and Immich. Keep their `render`/`video` device access aligned with the host graphics configuration when changing media services.
-- `nixos/modules/vpn.nix` defines a ProtonVPN WireGuard namespace and NAT-PMP port renewal. Downloader VPN confinement in `media.nix` is currently commented out; do not assume qBittorrent or SABnzbd are VPN-routed without checking the live configuration.
+- `nixos/modules/vpn.nix` defines a ProtonVPN WireGuard namespace and NAT-PMP port renewal. **qBittorrent is confined to that namespace** (`systemd.services.qbittorrent.vpnConfinement` in `media.nix`), which means its ports live *inside* the namespace: host-side consumers must use the namespace address `192.168.15.1`, never `localhost`. The Caddy vhost, the Homepage widget and the Sonarr/Radarr download clients were repointed for exactly that reason, or the stack breaks quietly. SABnzbd's confinement block is commented out on purpose (the tunnel would cap the fastest traffic in the stack); do not enable it without repointing its consumers too.
 - Lab Caddy is configured in `nixos/modules/caddy.nix`; Lighthouse Caddy is separate external state. Public services are proxied from Lighthouse to the lab over Tailscale, so changes to public routing may require work on both hosts.
 
 ## Home Assistant synchronization
