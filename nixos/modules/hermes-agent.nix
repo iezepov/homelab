@@ -61,4 +61,9 @@ in
       RestartSec = 2;
     };
   };
+
+  # Nix validates git-repo ownership when fetching a flake input. The agent
+  # rebuilds as root against this baddog-owned checkout, which trips
+  # "dubious ownership" without this exception.
+  programs.git.config."safe".directory = [ "/home/baddog/homelab" ];
 }
