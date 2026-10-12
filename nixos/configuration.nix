@@ -9,6 +9,7 @@
 {
   imports = [
     ./modules/hermes-agent.nix
+    ./modules/automation.nix
     ./hardware-configuration.nix
     ./modules/caddy.nix
     ./modules/media.nix
