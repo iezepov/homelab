@@ -145,7 +145,7 @@
               description = "Torrents";
               widget = {
                 type = "qbittorrent";
-                url = "http://localhost:8081";
+                url = "http://192.168.15.1:8081";
               };
             };
           }

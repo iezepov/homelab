@@ -11,7 +11,7 @@ let
     "radarr.lab.baddog.ch"      = "http://localhost:7878";
     "sonarr.lab.baddog.ch"      = "http://localhost:8989";
     "lidarr.lab.baddog.ch"      = "http://localhost:8686";
-    "qbittorrent.lab.baddog.ch" = "http://localhost:8081";
+    "qbittorrent.lab.baddog.ch" = "http://192.168.15.1:8081";
     "sabnzbd.lab.baddog.ch"     = "http://localhost:8080";
     "tautulli.lab.baddog.ch"    = "http://localhost:8181";
     "jellyfin.lab.baddog.ch"    = "http://localhost:8096";
