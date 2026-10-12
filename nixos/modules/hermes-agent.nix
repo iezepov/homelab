@@ -1,8 +1,10 @@
 # Hermes agent (remote automation) access to this host.
 #
-# Deliberately conservative:
-#  - the agent user is the ONLY account with passwordless sudo (baddog keeps the
-#    normal password-required behaviour)
+# Deliberately self-contained:
+#  - the agent account is NOT in wheel, so it gets its own explicit NOPASSWD rule.
+#    NOTE: configuration.nix already sets security.sudo.wheelNeedsPassword = false,
+#    so %wheel is passwordless too - this rule scopes the agent's access, it does
+#    not escalate relative to the existing model.
 #  - the agent's sshd is a SEPARATE instance on port 2222 with its own
 #    config, restricted to one user, so a mistake here cannot break port 22
 { config, pkgs, lib, ... }:
@@ -21,7 +23,8 @@ in
     packages = with pkgs; [ jq python3 curl ];
   };
 
-  # Root-equivalent, scoped to the agent user only.
+  # Root-equivalent for the agent account. Kept as an explicit rule rather than
+  # adding hermes to wheel so the grant is visible and removable in one place.
   security.sudo.extraRules = [
     {
       users = [ "hermes" ];
