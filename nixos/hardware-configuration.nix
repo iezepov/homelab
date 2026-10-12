@@ -18,9 +18,12 @@
       fsType = "ext4";
     };
 
-  swapDevices =
-    [ { device = "/dev/disk/by-uuid/dd6280da-e49e-4a4e-b183-87e32c7aa314"; }
-    ];
+  # Disk swap was dropped on 2026-10-12. The 7.5G swap partition sat at the END of
+  # the disk, which is why enlarging the VM disk (64G -> 128G) could not be claimed
+  # by the root filesystem while it was there. It had never been used (0B used);
+  # zram provides 7.8G of compressed-RAM swap (zramSwap.enable in configuration.nix).
+  # Do not re-add this without first creating a partition to back it.
+  swapDevices = [ ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 }

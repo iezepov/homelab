@@ -134,6 +134,35 @@ in
     '';
   };
 
+  # The VM disk was enlarged 64G -> 128G on 2026-10-12, but a running kernel cannot
+  # re-read the partition table of a disk whose root partition is mounted, and the
+  # on-disk table (sda1 = 2048..end, swap partition removed) is already correct. So
+  # claim the space at boot instead: resize2fs is an online grow and a no-op once the
+  # filesystem already fills its partition, which makes "enlarge the VM disk, reboot"
+  # the whole procedure from now on.
+  systemd.services.grow-root-filesystem = {
+    description = "Grow the root filesystem to fill its partition (no-op when already done)";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "local-fs.target" ];
+    unitConfig.ConditionPathIsMountPoint = "/";
+    # util-linux for findmnt; a unit sees only what its path lists (this is the same
+    # trap that made `runuser` and later `findmnt` "command not found").
+    path = with pkgs; [
+      e2fsprogs
+      util-linux
+    ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = false;
+    };
+    script = ''
+      dev=$(findmnt -no SOURCE /)
+      echo "root device: $dev"
+      resize2fs "$dev" || echo "resize2fs reported a problem - see above"
+      df -h / | tail -1
+    '';
+  };
+
   systemd.services.lab-reboot-if-pending = {
     description = "Reboot only if a switched generation has not been booted yet";
     startAt = "Sun 04:30";

@@ -29,6 +29,13 @@
     # 1447 of 1448 tests pass. Deselect just that timing test - the same
     # mechanism nixpkgs already uses for its own environment-dependent failures -
     # instead of skipping the whole suite with doCheck = false.
+    # unstable's 3.3.0 was evaluated as an alternative (cheaper bumps) and rejected:
+    # its NixOS module wraps the package (pkg.override with a tesseract5 override),
+    # so the derivation actually needed is in nobody's cache - 3.3.0 would cost the
+    # same from-source build with the same flaky test, only far more often, plus a
+    # database migration and an unstable module on a stable release. The plain
+    # package being on cache.nixos.org says nothing about the variant a module asks
+    # for; check the derivation the config needs, via its narinfo.
     package = pkgs.paperless-ngx.overrideAttrs (old: {
       disabledTests = (old.disabledTests or [ ]) ++ [ "test_slow_write_incomplete" ];
     });
