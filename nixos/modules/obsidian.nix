@@ -28,10 +28,23 @@ in
   # The CouchDB admin password never enters the nix store: sops renders the [admins] section
   # into a file only the couchdb user can read, and the module takes it as an extra config
   # file (the documented way to set the admin without a store leak).
+  #
+  # `ilya` is the account the vault clients use. It is listed under [admins] on purpose:
+  # LiveSync's "Overwrite Server Data with This Device's Files" (rebuild) DESTROYS and
+  # recreates the database, which CouchDB only allows server-admins to do — with a
+  # database-admin-only account the rebuild dies at the destroy step with
+  # `{"error":"unauthorized","reason":"You are not a server admin."}` after leaving the
+  # remote locked. Upstream's own setup docs assume the sync credentials may be admin ones.
+  #
+  # Caveat when rotating either password: CouchDB writes the hashed value into
+  # /var/lib/couchdb/local.ini, which is read LAST and therefore wins over this file —
+  # delete the matching line there before switching, or the old hash stays in force.
   sops.secrets.obsidian_couch_admin_pass = {
     owner = "couchdb";
     group = "couchdb";
   };
+
+  sops.secrets.obsidian_sync_pass = { };
 
   sops.templates."couchdb-admins.ini" = {
     owner = "couchdb";
@@ -39,6 +52,7 @@ in
     content = ''
       [admins]
       admin = ${config.sops.placeholder.obsidian_couch_admin_pass}
+      ilya = ${config.sops.placeholder.obsidian_sync_pass}
     '';
   };
 

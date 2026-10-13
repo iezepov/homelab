@@ -150,6 +150,10 @@
     ];
   };
 
+  # No x-systemd.idle-timeout here on purpose: the default 600s idle timeout
+  # unmounts this export while paperless-web/-consumer are still running against
+  # it, so the media directory disappears from under a live service. The
+  # automount itself stays, so boot still does not block on the NAS.
   fileSystems."/mnt/nas/paperless" = {
     device = "192.168.1.117:/volume2/Paperless";
     fsType = "nfs";
@@ -157,7 +161,6 @@
       "nfsvers=3"
       "hard"
       "x-systemd.automount"
-      "x-systemd.idle-timeout=600"
       "_netdev"
     ];
   };
