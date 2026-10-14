@@ -40,10 +40,43 @@ let
       }
     '';
   };
+
+  # Tailnet-only AND behind Authelia (the existing portal on lighthouse, whose session
+  # cookie is scoped to baddog.ch, so one login covers this host too). `route` keeps
+  # forward_auth strictly before the proxy so the 302 to the portal short-circuits.
+  # The upstream app then trusts Remote-User from this proxy only.
+  #
+  # Use Authelia's own port over the tailnet, NOT https://auth.baddog.ch: the latter
+  # means the subrequest traverses lighthouse's Caddy, which rewrites X-Forwarded-*
+  # and makes Authelia send the post-login redirect back to the portal instead of the
+  # app. Authelia trusts these headers by construction (it has no allowlist; the proxy
+  # is required to overwrite them), so this hop must be the first proxy they meet.
+  mkVhostTailnetAuthelia = _: url: {
+    extraConfig = ''
+      @tailnet remote_ip 100.64.0.0/10
+      handle @tailnet {
+        route {
+          forward_auth http://100.82.95.12:31306 {
+            uri /api/authz/forward-auth
+            copy_headers Remote-User Remote-Groups Remote-Email Remote-Name
+          }
+          reverse_proxy ${url}
+        }
+      }
+      handle {
+        respond "Not found" 404
+      }
+    '';
+  };
 in
 {
   networking.firewall.enable = true;
   networking.firewall.allowedTCPPorts = [ 22 80 443 ];
+
+  # Authelia lives on the public edge (lighthouse). Pin the portal's name to the tailnet
+  # address so anything on lab that resolves it (e.g. Actual Budget's OIDC discovery)
+  # stays on WireGuard instead of going out to the internet and back.
+  networking.hosts."100.82.95.12" = [ "auth.baddog.ch" ];
 
   sops.secrets.cf_api_token = {
     owner = "caddy";
@@ -67,7 +100,7 @@ in
 
     # Hermes WebUI on the hermes VM (the agent host), tailnet-gated.
     virtualHosts = lib.mapAttrs mkVhost sites // {
-      "hermes.lab.baddog.ch" = mkVhostTailnetOnly "hermes.lab.baddog.ch" "http://100.117.67.0:8787";
+      "hermes.lab.baddog.ch" = mkVhostTailnetAuthelia "hermes.lab.baddog.ch" "http://100.117.67.0:8787";
     };
   };
 }
