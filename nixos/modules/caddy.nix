@@ -19,6 +19,9 @@ let
     "nas.lab.baddog.ch"         = "http://192.168.1.117:5000";
     # Obsidian LiveSync backend (CouchDB, localhost-bound); tailnet only
     "obsidian.lab.baddog.ch"    = "http://127.0.0.1:5984";
+    # Hermes WebUI on the hermes VM (the agent host). It binds its tailnet IP only,
+    # so this hop travels over Tailscale; the LAN cannot reach it at all.
+    "hermes.lab.baddog.ch"      = "http://100.117.67.0:8787";
   };
 
   mkVhost = _: url: {
