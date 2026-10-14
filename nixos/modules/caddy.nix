@@ -41,6 +41,35 @@ let
     '';
   };
 
+  # Authelia forward-auth (trusted-header SSO) for a vhost, leaving the app's own API
+  # outside the gate. Authelia runs on the public edge (lighthouse) and is reached
+  # directly on its own port over the tailnet -- NOT via https://auth.baddog.ch,
+  # because that subrequest would traverse lighthouse's Caddy, which rewrites
+  # X-Forwarded-* and makes Authelia send the post-login redirect back to the portal
+  # instead of to the app. Caddy overwrites Remote-User from the authz response, so a
+  # client that sends that header itself cannot forge a login.
+  #
+  # /api/* deliberately skips Authelia: API clients authenticate against the app with
+  # their own token (e.g. paperless-mcp), which is how Paperless is configured - see
+  # PAPERLESS_ENABLE_HTTP_REMOTE_USER in apps.nix.
+  mkVhostAuthelia = _: url: {
+    extraConfig = ''
+      @api path /api/*
+      handle @api {
+        reverse_proxy ${url}
+      }
+      handle {
+        route {
+          forward_auth http://100.82.95.12:31306 {
+            uri /api/authz/forward-auth
+            copy_headers Remote-User Remote-Groups Remote-Email Remote-Name
+          }
+          reverse_proxy ${url}
+        }
+      }
+    '';
+  };
+
 in
 {
   networking.firewall.enable = true;
@@ -69,6 +98,9 @@ in
     # Hermes WebUI on the hermes VM (the agent host), tailnet-gated.
     virtualHosts = lib.mapAttrs mkVhost sites // {
       "hermes.lab.baddog.ch" = mkVhostTailnetOnly "hermes.lab.baddog.ch" "http://100.117.67.0:8787";
+
+      # Paperless behind Authelia SSO (frontend only - see mkVhostAuthelia above).
+      "paperless.lab.baddog.ch" = mkVhostAuthelia "paperless.lab.baddog.ch" "http://localhost:28981";
     };
   };
 }

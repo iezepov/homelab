@@ -44,6 +44,16 @@
     settings = {
       PAPERLESS_OCR_LANGUAGE = "eng+deu+rus";
       PAPERLESS_URL = "https://paperless.lab.baddog.ch";
+
+      # Trusted-header SSO: Caddy (modules/caddy.nix) fronts the frontend with Authelia
+      # and injects Remote-User from the Authelia session, so the username must match a
+      # Paperless user - `baddog` already is the superuser that owns the archive.
+      # The API stays on Paperless's own authentication on purpose
+      # (PAPERLESS_ENABLE_HTTP_REMOTE_USER_API stays false): token clients such as
+      # paperless-mcp use /api/*, which Caddy routes around Authelia.
+      PAPERLESS_ENABLE_HTTP_REMOTE_USER = true;
+      PAPERLESS_HTTP_REMOTE_USER_HEADER_NAME = "HTTP_REMOTE_USER";
+      PAPERLESS_LOGOUT_REDIRECT_URL = "https://auth.baddog.ch/logout";
     };
   };
 
