@@ -19,13 +19,26 @@ let
     "nas.lab.baddog.ch"         = "http://192.168.1.117:5000";
     # Obsidian LiveSync backend (CouchDB, localhost-bound); tailnet only
     "obsidian.lab.baddog.ch"    = "http://127.0.0.1:5984";
-    # Hermes WebUI on the hermes VM (the agent host). It binds its tailnet IP only,
-    # so this hop travels over Tailscale; the LAN cannot reach it at all.
-    "hermes.lab.baddog.ch"      = "http://100.117.67.0:8787";
   };
 
   mkVhost = _: url: {
     extraConfig = "reverse_proxy ${url}";
+  };
+
+  # Tailnet-only vhost. Lab's :443 is reachable from the LAN, and a LAN client can
+  # spoof the Host/SNI to reach any vhost in this file -- for the agent's WebUI that
+  # is a remote-code-execution path, so the client's network is checked, not just the
+  # name. Tailscale clients arrive from 100.64.0.0/10; everyone else gets a 404.
+  mkVhostTailnetOnly = _: url: {
+    extraConfig = ''
+      @tailnet remote_ip 100.64.0.0/10
+      handle @tailnet {
+        reverse_proxy ${url}
+      }
+      handle {
+        respond "Not found" 404
+      }
+    '';
   };
 in
 {
@@ -52,6 +65,9 @@ in
       }
     '';
 
-    virtualHosts = lib.mapAttrs mkVhost sites;
+    # Hermes WebUI on the hermes VM (the agent host), tailnet-gated.
+    virtualHosts = lib.mapAttrs mkVhost sites // {
+      "hermes.lab.baddog.ch" = mkVhostTailnetOnly "hermes.lab.baddog.ch" "http://100.117.67.0:8787";
+    };
   };
 }
