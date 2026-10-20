@@ -1,12 +1,17 @@
 # TRaSH-Guides profiles for lab, via Recyclarr.
 #
 # Design (agreed with Ilya):
-#   "4K first"          – new/requested items: 2160p WEB/Bluray first, 1080p as fallback.
-#   "1080p keep"        – existing library: good 1080p stops here; only junk below WEB 1080p
-#                         (CAM/TS/HDTV/480p) is replaced.
+#   "4K first"          – new/requested items: 2160p first (WEB above Bluray for size), 1080p
+#                         fallback, and within 1080p WEB is preferred over Bluray encodes.
+#   "1080p keep"        – existing library: good 1080p stops here; only junk below it
+#                         (CAM/TS/HDTV/720p/DVD/480p) is replaced.
 #   "Fallback (720p ok)"– escape hatch for rare media that has no 1080p+ release.
 # Remux qualities are deliberately absent everywhere (Ilya does not want 20-60 GB files).
 # DV scoring stays on (DV plays fine on his setup); MULTi is scored for Russian dual-audio discs.
+#
+# `until_quality: Bluray-1080p` (not WEB 1080p) is what keeps the library still now that WEB
+# outranks Bluray: the cutoff has to sit at the LOWEST quality considered "good", or an existing
+# Bluray-1080p file reads as below-cutoff and gets re-downloaded as a WEB copy.
 #
 # API keys come from the environment so they never live in this file.
 
@@ -31,9 +36,9 @@ radarr:
           - name: Bluray-2160p
           - name: WEB 2160p
             qualities: [WEBDL-2160p, WEBRip-2160p]
-          - name: Bluray-1080p
           - name: WEB 1080p
             qualities: [WEBDL-1080p, WEBRip-1080p]
+          - name: Bluray-1080p
           - name: HDTV-1080p
       - trash_id: d1d67249d3890e49bc12e275d989a7e9   # HD Bluray + WEB
         name: 1080p keep
@@ -41,24 +46,24 @@ radarr:
           enabled: false
         upgrade:
           allowed: true
-          until_quality: WEB 1080p
+          until_quality: Bluray-1080p
           until_score: 0        # no custom-format chasing: once a file is WEB/Bluray 1080p it stays
         min_format_score: 0
         quality_sort: top
         qualities:
-          - name: Bluray-1080p
           - name: WEB 1080p
             qualities: [WEBDL-1080p, WEBRip-1080p]
+          - name: Bluray-1080p
           - name: HDTV-1080p
       - name: Fallback (720p ok)
         upgrade:
           allowed: true
-          until_quality: WEB 1080p
+          until_quality: Bluray-1080p
         quality_sort: top
         qualities:
-          - name: Bluray-1080p
           - name: WEB 1080p
             qualities: [WEBDL-1080p, WEBRip-1080p]
+          - name: Bluray-1080p
           - name: HDTV-1080p
           - name: Bluray-720p
           - name: WEB 720p
@@ -104,7 +109,7 @@ sonarr:
           enabled: false
         upgrade:
           allowed: true
-          until_quality: WEB 1080p
+          until_quality: Bluray-1080p
           until_score: 0        # no custom-format chasing: once a file is WEB/Bluray 1080p it stays
         min_format_score: 0
         quality_sort: top
@@ -116,7 +121,7 @@ sonarr:
       - name: Fallback (720p ok)
         upgrade:
           allowed: true
-          until_quality: WEB 1080p
+          until_quality: Bluray-1080p
         quality_sort: top
         qualities:
           - name: WEB 1080p
