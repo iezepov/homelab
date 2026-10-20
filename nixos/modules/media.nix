@@ -28,6 +28,15 @@ in
     package = pkgsUnstable.lidarr;
     settings.auth = arrAuth;
   };
+  # Request manager for the household (Jellyfin-based). Deliberately NOT
+  # pkgsUnstable like its neighbours: seerr 3.2.0 lives in the stable pin and is
+  # absent from the unstable pin. openFirewall stays false -- the service is
+  # consumed through the Caddy vhost in caddy.nix (and the tailnet, since
+  # firewall.trustedInterfaces trusts tailscale0).
+  services.seerr = {
+    enable = true;
+    port = 5055;
+  };
 
   # ── Downloaders ──────────────────────────────────────────────────────────
   services.sabnzbd = {

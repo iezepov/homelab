@@ -120,6 +120,13 @@
             };
           }
           {
+            Seerr = {
+              icon = "seerr.svg";
+              href = "https://seerr.lab.baddog.ch";
+              description = "Requests";
+            };
+          }
+          {
             Plex = {
               icon = "plex.svg";
               href = "https://plex.baddog.ch";
