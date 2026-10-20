@@ -33,10 +33,15 @@ service drops to the `recyclarr` user.
 
 | profile | who is on it | quality order (best first) | upgrade until |
 | --- | --- | --- | --- |
-| `4K first` | Seerr requests, TMDB collections | Bluray-2160p → WEB 2160p → Bluray-1080p → WEB 1080p → HDTV-1080p | Bluray-2160p, custom-format score 10000 |
-| `1080p keep` | the existing library (169 movies, 40 series) | Bluray-1080p → WEB 1080p → HDTV-1080p | WEB 1080p, **custom-format score 0** |
+| `4K first` | Seerr requests, TMDB collections | Bluray-2160p → WEB 2160p → WEB 1080p → Bluray-1080p → HDTV-1080p | Bluray-2160p, custom-format score 10000 |
+| `1080p keep` | the existing library (169 movies, 40 series) | WEB 1080p → Bluray-1080p → HDTV-1080p | Bluray-1080p, **custom-format score 0** |
 | `Fallback (720p ok)` | per-item escape hatch for rare media | as above + 720p qualities | WEB 1080p |
 
+- **WEB outranks Bluray at 1080p** (Ilya's call: same resolution, far smaller file — a Bluray-1080p
+  encode can be 23 GB where the WEB-DL is 6). A consequence worth remembering: the upgrade cutoff
+  must then be `Bluray-1080p`, the *lowest* quality still considered good. With the cutoff at
+  `WEB 1080p` every existing Bluray-1080p file would read as below-cutoff and be re-downloaded as a
+  WEB copy — a whole-library churn for no quality gain.
 - **Remux is excluded everywhere** — Ilya does not want 20-60 GB files. Existing remuxes stay.
 - `until_score: 0` on `1080p keep` is deliberate: TRaSH's default keeps upgrading on custom-format
   score forever, which would re-download the whole 1080p library. With 0, only files *below*
