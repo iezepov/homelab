@@ -124,6 +124,11 @@
               icon = "seerr.svg";
               href = "https://seerr.lab.baddog.ch";
               description = "Requests";
+              widget = {
+                type = "seerr";
+                url = "http://localhost:5055";
+                key = "{{HOMEPAGE_VAR_SEERR_KEY}}";
+              };
             };
           }
           {
