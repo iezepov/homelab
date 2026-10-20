@@ -18,6 +18,7 @@
     ./modules/homepage.nix
     ./modules/vpn.nix
     ./modules/obsidian.nix
+    ./modules/recyclarr.nix
   ];
 
   # ── Sops ──────────────────────────────────────────────────────────────────
