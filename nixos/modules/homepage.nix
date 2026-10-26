@@ -203,6 +203,13 @@
             };
           }
           {
+            Bazarr = {
+              icon = "bazarr.svg";
+              href = "https://bazarr.lab.baddog.ch";
+              description = "Subtitles";
+            };
+          }
+          {
             Sonarr = {
               icon = "sonarr.svg";
               href = "https://sonarr.lab.baddog.ch";

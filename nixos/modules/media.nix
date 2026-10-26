@@ -1,4 +1,4 @@
-{ lib, pkgsUnstable, ... }:
+{ lib, pkgs, pkgsUnstable, ... }:
 
 let
   arrAuth = {
@@ -27,6 +27,15 @@ in
     enable = true;
     package = pkgsUnstable.lidarr;
     settings.auth = arrAuth;
+  };
+  # Subtitle manager for Sonarr/Radarr. The module exposes no `settings`
+  # option (only enable/port/dataDir), so Bazarr is configured through its
+  # own API after first boot -- see AGENTS.md / the homelab-lab skill.
+  # pkgs.bazarr is 1.6.x in the stable pin; `pkgsUnstable.bazarr` does not
+  # exist, so do not "harmonise" this line with its neighbours.
+  services.bazarr = {
+    enable = true;
+    package = pkgs.bazarr;
   };
   # Request manager for the household (Jellyfin-based). Deliberately NOT
   # pkgsUnstable like its neighbours: seerr 3.2.0 lives in the stable pin and is
