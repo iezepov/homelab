@@ -4,13 +4,17 @@
 # Two separate jobs on purpose, so that a bad upstream commit can never turn
 # into a reboot loop:
 #
-#   1. lab-update  (Sun 03:30) - refresh every flake input, rebuild, switch.
+#   1. lab-update  (Sun 03:30) - refresh every flake input, build, switch.
 #      Runs as root (only root can move /nix/var/nix/profiles/system) but drops
 #      to baddog for the git/nix steps so the checkout stays baddog-owned.
-#      If anything fails, the previous flake.lock is restored and the running
-#      generation is untouched - a broken commit costs one week, not the box.
+#      It builds the new system BEFORE switching, so a broken upstream commit
+#      costs nothing at all; only a failed build restores the previous
+#      flake.lock, and only when the running generation really did not move.
+#      Success is judged by the generation/profile, never by this script's exit
+#      code (the switch restarts units, so the script can die with work done).
 #      On success the new lock file is committed and pushed, so the git history
-#      stays the rollback trail.
+#      stays the rollback trail. The unit is marked restartIfChanged = false so
+#      the switch cannot stop the job that is performing it.
 #
 #   2. lab-reboot  (Sun 04:30) - reboots ONLY when /run/current-system is not
 #      what was booted, i.e. when a kernel/initrd/systemd change is genuinely
@@ -53,7 +57,25 @@ in
       gnugrep
       gawk
       util-linux
+      systemd
+      # `git push` shells out to ssh: without this every weekly push died with
+      # "error: cannot run ssh: No such file or directory" and the lock commits
+      # never left the box.
+      openssh
     ];
+    # ── Do not let the switch kill the job that performs it ──────────────────
+    # switch-to-configuration restarts every unit whose definition changed, and a
+    # flake bump moves the store paths inside this unit (its script and its PATH),
+    # so on 2026-10-25 it TERM'd lab-update mid-switch. That left a stale
+    # nixos-rebuild-switch-to-configuration.service loaded, so the automatic retry
+    # died with "Unit ... was already loaded" (nixpkgs#319440) and the failure
+    # handler reverted flake.lock while the new generation kept running - which
+    # made the next rebuild downgrade Immich 3.3.5 -> 3.3.1 against a database
+    # 3.3.5 had already migrated, and photos.baddog.ch served 502s for 23h.
+    # Upstream's nixos-upgrade.service protects itself with the same markers.
+    restartIfChanged = false;
+    stopIfChanged = false;
+    unitConfig.X-StopOnRemoval = false;
     serviceConfig = {
       Type = "oneshot";
       TimeoutStartSec = "3h";
@@ -69,19 +91,66 @@ in
       set -euo pipefail
       cd ${repo}/nixos
 
-      before=$(readlink -f /nix/var/nix/profiles/system)
+      profile=/nix/var/nix/profiles/system
+      lockfile=${repo}/nixos/flake.lock
+      lock_backup=$(mktemp /tmp/lab-update-flake.lock.XXXXXX)
+      before=$(readlink -f "$profile")
+      cp -a "$lockfile" "$lock_backup"
       echo "running generation: $before"
 
+      commit_lock() {
+        ${asBaddog} git -C ${repo} add nixos/flake.lock || true
+        ${asBaddog} git -C ${repo} commit \
+          -m "chore(flake): weekly input update ($(date -I))" \
+          || echo "nothing new to commit"
+        ${asBaddog} git -C ${repo} push origin HEAD \
+          || echo "warning: push failed - lock file committed locally only"
+      }
+
+      # Bound generation growth in both cases: nix.gc only prunes paths older
+      # than 30d, and this filesystem is too small to keep a month of closures.
+      prune_and_gc() {
+        nix-env -p "$profile" --delete-generations "+${toString keepGenerations}" || true
+        nix-collect-garbage || true
+        df -h / | tail -1
+      }
+
+      # A previous killed run can leave this transient unit loaded, and then every
+      # later switch fails with "Unit ... was already loaded" (nixpkgs#319440).
+      clear_transient() {
+        systemctl stop nixos-rebuild-switch-to-configuration.service 2>/dev/null || true
+        systemctl reset-failed nixos-rebuild-switch-to-configuration.service 2>/dev/null || true
+      }
+
       cleanup() {
-        rc=$?
+        rc=''${1:-$?}
+        trap - EXIT TERM INT
+        after=$(readlink -f "$profile")
+
         if [ "$rc" -ne 0 ]; then
-          echo "lab-update FAILED (rc=$rc) - restoring the previous flake.lock;"
-          echo "the running generation is unchanged, nothing was switched."
-          ${asBaddog} git -C ${repo} checkout -- nixos/flake.lock || true
+          if [ "$after" != "$before" ]; then
+            # The switch DID land; only this process died while performing it.
+            # Reverting the lock here pins the box to an older revision and
+            # downgrades every app whose database has already migrated, so keep
+            # the forward state and record it.
+            echo "lab-update: rc=$rc, but the generation DID change:"
+            echo "  before: $before"
+            echo "  after : $after"
+            echo "  keeping the updated flake.lock - a rollback would downgrade migrated databases"
+            commit_lock
+          else
+            echo "lab-update FAILED (rc=$rc) with the generation unchanged."
+            echo "restoring the previous flake.lock - nothing was switched."
+            cp -a "$lock_backup" "$lockfile" || true
+          fi
         fi
+
+        rm -f "$lock_backup"
         exit "$rc"
       }
       trap cleanup EXIT
+      trap 'cleanup 143' TERM
+      trap 'cleanup 130' INT
 
       # Refuse to start an upgrade that cannot fit. A release bump needs room for
       # a whole new closure while the old one is still live, and filling / has
@@ -97,38 +166,46 @@ in
 
       # start from a clean lock so last week's failed attempt can't compound
       ${asBaddog} git -C ${repo} checkout -- nixos/flake.lock || true
+      cp -a "$lockfile" "$lock_backup"
 
       echo "== nix flake update =="
       ${asBaddog} nix flake update
 
+      # Build BEFORE switching: a bad upstream commit then costs nothing, and
+      # there is never a half-applied generation to reason about afterwards.
+      echo "== nix build (builds the new system, switches nothing) =="
+      ${asBaddog} nix build --no-link --print-out-paths \
+        "${repo}/nixos#nixosConfigurations.lab.config.system.build.toplevel"
+
       echo "== nixos-rebuild switch =="
-      ${nixosRebuild} switch --flake ${flake}
-
-      after=$(readlink -f /nix/var/nix/profiles/system)
-      echo "generation now: $after"
-
-      # Bound generation growth in both cases: nix.gc only prunes paths older
-      # than 30d, and this filesystem is too small to keep a month of closures.
-      # Doing it before the early exit means the box is still tidied in weeks
-      # where upstream did not move.
-      prune_and_gc() {
-        nix-env -p /nix/var/nix/profiles/system --delete-generations "+${toString keepGenerations}" || true
-        nix-collect-garbage || true
-        df -h / | tail -1
-      }
-
-      if [ "$before" = "$after" ]; then
-        echo "no input change - nothing to commit, and no reboot will be needed"
-        prune_and_gc
-        exit 0
+      clear_transient
+      if ! ${nixosRebuild} switch --flake ${flake}; then
+        after=$(readlink -f "$profile")
+        if [ "$after" = "$before" ]; then
+          echo "switch failed and nothing was switched - clearing the transient unit and retrying once"
+          clear_transient
+          ${nixosRebuild} switch --flake ${flake}
+        else
+          echo "switch returned non-zero but the generation advanced - continuing"
+        fi
       fi
 
-      ${asBaddog} git -C ${repo} add nixos/flake.lock
-      ${asBaddog} git -C ${repo} commit \
-        -m "chore(flake): weekly input update ($(date -I))" || true
-      ${asBaddog} git -C ${repo} push origin HEAD \
-        || echo "warning: push failed - lock file committed locally only"
-      echo "committed + pushed the new flake.lock"
+      after=$(readlink -f "$profile")
+      echo "generation now: $after"
+      echo "booted now    : $(readlink -f /run/booted-system)"
+
+      # sha256sum (coreutils) and not cmp (diffutils): every command in this
+      # script must come from the unit's own PATH list, or it fails at runtime
+      # with "command not found" only when that branch is finally reached.
+      if [ "$(sha256sum < "$lockfile")" = "$(sha256sum < "$lock_backup")" ]; then
+        echo "no input change - nothing to commit"
+      else
+        commit_lock
+      fi
+
+      if [ "$before" = "$after" ]; then
+        echo "no system change either - no reboot will be needed"
+      fi
 
       prune_and_gc
     '';
