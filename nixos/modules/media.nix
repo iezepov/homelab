@@ -104,6 +104,16 @@ in
     vpnNamespace = "wg";
   };
 
+  # The confinement sets `InaccessiblePaths=/run/nscd` (vpn-confinement's
+  # modules/systemd.nix), and systemd refuses to start a unit whose
+  # InaccessiblePaths target does not exist - the unit dies before it runs with
+  #   Failed to set up mount namespacing: /run/nscd: No such file or directory
+  #   qbittorrent.service: Control process exited, code=exited, status=226/NAMESPACE
+  # nscd only creates that directory partway through boot, so the client came up
+  # fine whenever it was started by hand and failed on the first boot after a
+  # switch. Create the path in sysinit, before any service starts.
+  systemd.tmpfiles.rules = [ "d /run/nscd 0755 nscd nscd -" ];
+
   # ── Plex ─────────────────────────────────────────────────────────────────
   users.users.plex.extraGroups = [
     "render"
