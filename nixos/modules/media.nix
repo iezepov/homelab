@@ -114,6 +114,19 @@ in
   # switch. Create the path in sysinit, before any service starts.
   systemd.tmpfiles.rules = [ "d /run/nscd 0755 nscd nscd -" ];
 
+  # A SWITCH (activation) is the case the tmpfiles rule above does not cover: the
+  # unit's definition changes, so switch-to-configuration stops and restarts it,
+  # and that restart happens BEFORE systemd-tmpfiles-resetup re-creates
+  # /run/nscd. The namespace setup then fails with status=226/NAMESPACE, the unit
+  # is left failed, and switch-to-configuration returns 4 for the whole run - which
+  # is what made the Nov 2 upgrade look broken. Order the client after the unit
+  # that (re)runs tmpfiles, so both boot and activation are safe; it is a
+  # Type=oneshot with DefaultDependencies=false, so it is cheap and idempotent.
+  systemd.services.qbittorrent = {
+    wants = [ "systemd-tmpfiles-resetup.service" ];
+    after = [ "systemd-tmpfiles-resetup.service" ];
+  };
+
   # ── Plex ─────────────────────────────────────────────────────────────────
   users.users.plex.extraGroups = [
     "render"
