@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, pkgsUnstable, ... }:
 
 # Recyclarr keeps the Radarr/Sonarr quality profiles and custom formats in sync with the
 # TRaSH-Guides. The configuration itself lives in the repo at nixos/recyclarr/recyclarr.yml and is
@@ -9,12 +9,15 @@
 # TTY, and recyclarr 8.x then dies with "Offset and length were out of bounds for the array…" from
 # the Spectre.Console progress renderer. The wrapper below hands it a pty via `script`.
 
+# Recyclarr must come from the unstable channel: stable 26.05 still ships 8.6.0, which crashes
+# on Sonarr v5's quality-definition API ("Value cannot be null. (Parameter 'Value')",
+# recyclarr#988). Sonarr here is v5, so this stays on 8.8.x until stable catches up.
 let
   configFile = "/etc/recyclarr/recyclarr.yml";
   syncScript = pkgs.writeShellScript "recyclarr-sync" ''
     set -eu
     exec ${pkgs.util-linux}/bin/script -qec \
-      "${lib.getExe pkgs.recyclarr} sync --config ${configFile}" /dev/null
+      "${lib.getExe pkgsUnstable.recyclarr} sync --config ${configFile}" /dev/null
   '';
 in
 {
